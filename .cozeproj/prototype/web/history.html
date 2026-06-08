@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>历史记录 · Niche Finder</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://lf-code-agent.coze.cn/obj/x-ai-cn/fonts/google/google-all-fonts.css" rel="stylesheet">
+
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/jquery/jquery-3.7.1.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/lucide/lucide-1.11.0.min.js"></script>
+  <script src="https://lf-code-agent.coze.cn/obj/x-ai-cn/cdn/tailwindcss/tailwindcss-browser-4.2.4.min.js"></script>
+
+  <style type="text/tailwindcss">
+    @theme {
+      /* === 品牌色：暖琥珀金 === */
+      --color-primary:              #FFB547;
+      --color-primary-container:    #3D2D14;
+      --color-on-primary:           #0B0F19;
+      --color-on-primary-container: #FFB547;
+      /* === 背景 / 表面 === */
+      --color-background:                 #0B0F19;
+      --color-surface-container-lowest:   #080B14;
+      --color-surface:                    #131826;
+      --color-surface-container:          #1A2030;
+      --color-surface-container-high:     #222B3F;
+      --color-surface-container-highest:  #2A334A;
+      /* === 文字 === */
+      --color-on-surface:           #E6E9F2;
+      --color-on-surface-variant:   #8A93A8;
+      /* === 功能色 === */
+      --color-success:  #4FD1C5;
+      --color-error:    #FF6B6B;
+      --color-warning:  #FFB547;
+      --color-info:     #7FB8FF;
+      /* === 4 种发现模式专属色 === */
+      --color-mode-blue:    #4F8FFF;
+      --color-mode-amber:   #FFB547;
+      --color-mode-violet:  #B07AFF;
+      --color-mode-mint:    #4FD1C5;
+      /* === 边框 === */
+      --color-outline:          #252B3B;
+      --color-outline-variant:  #1A2030;
+      /* === 圆角 === */
+      --radius-sm:   0.375rem;
+      --radius-md:   0.5rem;
+      --radius-lg:   0.75rem;
+      --radius-xl:   1rem;
+      --radius-2xl:  1.5rem;
+      --radius-full: 9999px;
+      /* === 阴影 === */
+      --shadow-card:   0 1px 2px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.3);
+      --shadow-float:  0 8px 16px rgba(0,0,0,0.5), 0 16px 32px rgba(0,0,0,0.4);
+      --shadow-dialog: 0 20px 40px rgba(0,0,0,0.6), 0 30px 60px rgba(0,0,0,0.5);
+      --shadow-glow:   0 0 0 1px rgba(255,181,71,0.2), 0 8px 24px rgba(255,181,71,0.15);
+      /* === 字体 === */
+      --font-sans:    "Inter", "Noto Sans SC", system-ui, sans-serif;
+      --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+      --font-mono:    "JetBrains Mono", "SF Mono", Menlo, monospace;
+    }
+  </style>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--color-background);
+      color: var(--color-on-surface);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+    .font-mono { font-family: var(--font-mono); }
+    .gradient-amber {
+      background: linear-gradient(135deg, #FFB547 0%, #FFD78A 50%, #FF9A2E 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .glow-blue   { box-shadow: 0 0 0 1px rgba(79,143,255,0.3), 0 8px 24px rgba(79,143,255,0.15); }
+    .glow-amber  { box-shadow: 0 0 0 1px rgba(255,181,71,0.3), 0 8px 24px rgba(255,181,71,0.15); }
+    .glow-violet { box-shadow: 0 0 0 1px rgba(176,122,255,0.3), 0 8px 24px rgba(176,122,255,0.15); }
+    .glow-mint   { box-shadow: 0 0 0 1px rgba(79,209,197,0.3), 0 8px 24px rgba(79,209,197,0.15); }
+    .header-divider { border-bottom: 1px solid var(--color-outline); }
+  </style>
+
+  <script>
+    document.addEventListener('error', function (e) {
+      const img = e.target;
+      if (img.tagName !== 'IMG' || img.dataset.fallback) return;
+      img.dataset.fallback = '1';
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const cat = img.getAttribute('data-category') || '其他';
+      const alt = img.getAttribute('alt') || '';
+      const label = esc(alt.length > 8 ? alt.slice(0, 8) + '…' : alt);
+      const icons = { '人物': '👤', '自然风景': '🏞', '动物': '🐾', '建筑城市': '🏙', '运动体育': '⚽', '交通工具': '🚗', '食物': '🍽', '服饰时尚': '👗', '商业科技': '💼', '游戏娱乐': '🎮', '艺术': '🎨', '其他': '🖼' };
+      const icon = icons[cat] || '🖼';
+      const w = img.width || 400, h = img.height || 300;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="%23131826"/><text x="50%" y="45%" text-anchor="middle" font-size="${Math.min(w, h) * 0.18}" dominant-baseline="central">${icon}</text><text x="50%" y="68%" text-anchor="middle" font-size="${Math.min(w, h) * 0.07}" fill="%238A93A8" font-family="system-ui,sans-serif" dominant-baseline="central">${label}</text></svg>`;
+      img.src = 'data:image/svg+xml,' + svg;
+    }, true);
+  </script>
+</head>
+
+<body class="bg-background text-on-surface font-sans relative">
+
+  <!-- @nav:start 导航组件（所有 5 个页面统一使用此导航） -->
+  <header class="sticky top-0 z-40 bg-background/80 backdrop-blur-xl header-divider">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+      <a href="home.html" class="flex items-center gap-2.5 group">
+        <div class="w-8 h-8 rounded-md bg-gradient-to-br from-primary to-amber-300 flex items-center justify-center shadow-card">
+          <i data-lucide="radar" class="w-4 h-4 text-on-primary"></i>
+        </div>
+        <div class="flex items-baseline gap-1.5">
+          <span class="font-display text-base font-bold text-on-surface tracking-tight">Niche Finder</span>
+          <span class="text-[10px] font-mono text-on-surface-variant uppercase tracking-wider hidden sm:inline">v2.0</span>
+        </div>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-1">
+        <a href="home.html" id="nav-home" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
+          首页
+        </a>
+        <a href="opportunities.html" id="nav-opportunities" class="px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-md transition-colors">
+          我的机会
+        </a>
+        <a href="history.html" id="nav-history" class="px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 rounded-md transition-colors" aria-current="page">
+          历史记录
+        </a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-container border border-outline-variant/50 text-xs">
+          <i data-lucide="zap" class="w-3 h-3 text-primary"></i>
+          <span class="font-mono text-on-surface">3</span>
+          <span class="text-on-surface-variant">/ 5 次</span>
+        </div>
+        <button id="btn-user-menu" class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-md hover:bg-surface-container transition-colors">
+          <div class="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-mode-violet flex items-center justify-center text-on-primary text-xs font-bold">初</div>
+        </button>
+      </div>
+    </div>
+  </header>
+  <!-- @nav:end 导航组件 -->
+
+  <!-- @main-content:start -->
+  <main class="max-w-7xl mx-auto px-6 py-10 relative">
+
+    <!-- ========== 1. 页面头部 ========== -->
+    <section class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+      <div>
+        <h1 class="font-display text-4xl md:text-5xl font-bold gradient-amber leading-tight">历史记录</h1>
+        <p class="text-on-surface-variant text-sm mt-2">
+          你共完成 <span class="font-mono text-on-surface font-semibold">12</span> 次分析，最早一次在 <span class="font-mono text-on-surface">2026-05-12</span>
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-export-all" class="px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container border border-outline-variant/30 transition-colors inline-flex items-center gap-2">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          导出全部
+        </button>
+        <button id="btn-clear-all" class="px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:text-error hover:bg-error/10 border border-outline-variant/30 transition-colors inline-flex items-center gap-2">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          清空历史
+        </button>
+        <!-- 列表-记录4：深度分析 - 宠物经济独立站 -->
+        <div class="history-item bg-surface rounded-xl border border-outline-variant/20 p-4 hover:bg-surface-container/30 transition-colors" data-id="h004" data-mode="deep" data-score="8.20" data-fav="true">
+          <div class="flex items-center gap-4">
+            <label class="shrink-0 cursor-pointer">
+              <input type="checkbox" class="row-check sr-only peer" />
+              <div class="w-4 h-4 rounded-sm border border-outline-variant/60 peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+                <i data-lucide="check" class="w-3 h-3 text-on-primary hidden peer-checked:block"></i>
+              </div>
+            </label>
+            <div class="flex items-stretch gap-3 flex-1 min-w-0">
+              <div class="w-1 self-stretch rounded-full bg-mode-mint shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-semibold bg-mode-mint/15 text-mode-mint">深度分析</span>
+                  <h3 class="font-display text-base font-semibold text-on-surface truncate">宠物经济独立站</h3>
+                </div>
+                <p class="text-sm text-on-surface-variant mt-1 truncate">一句话价值：北美宠物智能用品市场调研，含 17 个 SKU 选品与 1 个完整落地 SOP</p>
+                <div class="flex items-center gap-3 mt-1.5 text-xs text-on-surface-variant/80 font-mono">
+                  <span class="inline-flex items-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i>1 个深度报告</span>
+                  <span>·</span>
+                  <span>上周</span>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block shrink-0">
+              <svg viewBox="0 0 64 64" class="w-14 h-14">
+                <polygon points="32,4 56.25,18 56.25,46 32,60 7.75,46 7.75,18" fill="none" stroke="#252B3B" stroke-width="1"/>
+                <polygon points="32,7 51,19 49,45 32,56 11.5,44 13.5,20" fill="rgba(79,209,197,0.25)" stroke="#4FD1C5" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="text-right shrink-0 hidden sm:block">
+              <div class="font-mono text-xl font-display font-bold gradient-amber leading-none">8.20</div>
+              <div class="text-[10px] text-on-surface-variant/70 uppercase tracking-wider mt-1">综合分</div>
+            </div>
+            <div class="shrink-0 hidden sm:block">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i>已收藏
+              </span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button data-action="view" class="btn-view w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="查看">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+              </button>
+              <button data-action="fav" class="btn-fav w-8 h-8 rounded-md flex items-center justify-center text-primary bg-primary/10 transition-colors" title="取消收藏">
+                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+              </button>
+              <button data-action="delete" class="btn-del w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors" title="删除">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 列表-记录5：蓝海 - AI 副业 - 海外 SEO -->
+        <div class="history-item bg-surface rounded-xl border border-outline-variant/20 p-4 hover:bg-surface-container/30 transition-colors" data-id="h005" data-mode="blue-ocean" data-score="7.60" data-fav="false">
+          <div class="flex items-center gap-4">
+            <label class="shrink-0 cursor-pointer">
+              <input type="checkbox" class="row-check sr-only peer" />
+              <div class="w-4 h-4 rounded-sm border border-outline-variant/60 peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+                <i data-lucide="check" class="w-3 h-3 text-on-primary hidden peer-checked:block"></i>
+              </div>
+            </label>
+            <div class="flex items-stretch gap-3 flex-1 min-w-0">
+              <div class="w-1 self-stretch rounded-full bg-mode-blue shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-semibold bg-mode-blue/15 text-mode-blue">蓝海</span>
+                  <h3 class="font-display text-base font-semibold text-on-surface truncate">AI 副业 · 海外 SEO</h3>
+                </div>
+                <p class="text-sm text-on-surface-variant mt-1 truncate">一句话价值：6 个低 KD、高商业价值的英文长尾选题，含关键词矩阵与内容模板</p>
+                <div class="flex items-center gap-3 mt-1.5 text-xs text-on-surface-variant/80 font-mono">
+                  <span class="inline-flex items-center gap-1"><i data-lucide="lightbulb" class="w-3 h-3"></i>6 个机会</span>
+                  <span>·</span>
+                  <span>上周</span>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block shrink-0">
+              <svg viewBox="0 0 64 64" class="w-14 h-14">
+                <polygon points="32,4 56.25,18 56.25,46 32,60 7.75,46 7.75,18" fill="none" stroke="#252B3B" stroke-width="1"/>
+                <polygon points="32,10 48,20 46,43 32,53 15,40 16,22" fill="rgba(79,143,255,0.25)" stroke="#4F8FFF" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="text-right shrink-0 hidden sm:block">
+              <div class="font-mono text-xl font-display font-bold gradient-amber leading-none">7.60</div>
+              <div class="text-[10px] text-on-surface-variant/70 uppercase tracking-wider mt-1">综合分</div>
+            </div>
+            <div class="shrink-0 hidden sm:block">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">
+                <i data-lucide="check-circle-2" class="w-3 h-3"></i>已完成
+              </span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button data-action="view" class="btn-view w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="查看">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+              </button>
+              <button data-action="fav" class="btn-fav w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="收藏">
+                <i data-lucide="star" class="w-4 h-4"></i>
+              </button>
+              <button data-action="delete" class="btn-del w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors" title="删除">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 列表-记录6：红海细分 - 餐饮 SaaS -->
+        <div class="history-item bg-surface rounded-xl border border-outline-variant/20 p-4 hover:bg-surface-container/30 transition-colors" data-id="h006" data-mode="red-detail" data-score="6.95" data-fav="false">
+          <div class="flex items-center gap-4">
+            <label class="shrink-0 cursor-pointer">
+              <input type="checkbox" class="row-check sr-only peer" />
+              <div class="w-4 h-4 rounded-sm border border-outline-variant/60 peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+                <i data-lucide="check" class="w-3 h-3 text-on-primary hidden peer-checked:block"></i>
+              </div>
+            </label>
+            <div class="flex items-stretch gap-3 flex-1 min-w-0">
+              <div class="w-1 self-stretch rounded-full bg-mode-amber shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-semibold bg-mode-amber/15 text-mode-amber">红海细分</span>
+                  <h3 class="font-display text-base font-semibold text-on-surface truncate">餐饮 SaaS</h3>
+                </div>
+                <p class="text-sm text-on-surface-variant mt-1 truncate">一句话价值：识别 4 个 SaaS 切入角度（外卖代运营 / 私域会员 / 食材采购 / 排班考勤）</p>
+                <div class="flex items-center gap-3 mt-1.5 text-xs text-on-surface-variant/80 font-mono">
+                  <span class="inline-flex items-center gap-1"><i data-lucide="lightbulb" class="w-3 h-3"></i>4 个机会</span>
+                  <span>·</span>
+                  <span>上个月</span>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block shrink-0">
+              <svg viewBox="0 0 64 64" class="w-14 h-14">
+                <polygon points="32,4 56.25,18 56.25,46 32,60 7.75,46 7.75,18" fill="none" stroke="#252B3B" stroke-width="1"/>
+                <polygon points="32,13 44,22 43,40 32,49 20,38 21,25" fill="rgba(255,181,71,0.25)" stroke="#FFB547" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="text-right shrink-0 hidden sm:block">
+              <div class="font-mono text-xl font-display font-bold gradient-amber leading-none">6.95</div>
+              <div class="text-[10px] text-on-surface-variant/70 uppercase tracking-wider mt-1">综合分</div>
+            </div>
+            <div class="shrink-0 hidden sm:block">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium bg-error/15 text-error">
+                <i data-lucide="alert-circle" class="w-3 h-3"></i>分析失败
+              </span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button data-action="view" class="btn-view w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="查看">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+              </button>
+              <button data-action="fav" class="btn-fav w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="收藏">
+                <i data-lucide="star" class="w-4 h-4"></i>
+              </button>
+              <button data-action="delete" class="btn-del w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors" title="删除">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========== 批量操作演示条 ========== -->
+      <div id="batch-bar" class="mt-4 bg-surface-container rounded-xl border border-outline-variant/20 p-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input id="check-all" type="checkbox" class="sr-only peer" />
+            <div class="w-4 h-4 rounded-sm border border-outline-variant/60 peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+              <i data-lucide="check" class="w-3 h-3 text-on-primary hidden peer-checked:block"></i>
+            </div>
+            <span class="text-sm text-on-surface-variant">全选</span>
+          </label>
+          <span class="text-xs text-on-surface-variant/70 font-mono">
+            已选 <span id="selected-count" class="text-primary font-semibold">0</span> 项
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-export-selected" class="px-3 py-1.5 rounded-md text-xs font-medium text-on-surface-variant hover:text-on-surface border border-outline-variant/30 inline-flex items-center gap-1.5 opacity-50 pointer-events-none transition-all">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>导出选中
+          </button>
+          <button id="btn-delete-selected" class="px-3 py-1.5 rounded-md text-xs font-medium text-on-surface-variant hover:text-error hover:bg-error/10 border border-outline-variant/30 inline-flex items-center gap-1.5 opacity-50 pointer-events-none transition-all">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除选中
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 5. 空状态预览区：热门分析方向 ========== -->
+    <section class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-6 mb-6">
+      <div class="flex items-center gap-2 mb-1">
+        <i data-lucide="sparkles" class="w-4 h-4 text-primary"></i>
+        <h2 class="font-display text-lg font-semibold text-on-surface">试试这些热门分析方向</h2>
+      </div>
+      <p class="text-sm text-on-surface-variant mb-4">基于近期小初关注度较高的领域，点击即可发起新分析</p>
+
+      <div class="flex flex-wrap gap-2">
+        <a href="home.html?topic=ai-side-hustle"  class="topic-chip px-3 py-1.5 rounded-md text-sm font-medium bg-surface text-on-surface-variant hover:text-primary hover:bg-primary/10 border border-outline-variant/30 transition-colors">AI 副业方向</a>
+        <a href="home.html?topic=pet-economy"     class="topic-chip px-3 py-1.5 rounded-md text-sm font-medium bg-surface text-on-surface-variant hover:text-primary hover:bg-primary/10 border border-outline-variant/30 transition-colors">宠物经济</a>
+        <a href="home.html?topic=senior-market"    class="topic-chip px-3 py-1.5 rounded-md text-sm font-medium bg-surface text-on-surface-variant hover:text-primary hover:bg-primary/10 border border-outline-variant/30 transition-colors">银发市场</a>
+        <a href="home.html?topic=indie-dev"       class="topic-chip px-3 py-1.5 rounded-md text-sm font-medium bg-surface text-on-surface-variant hover:text-primary hover:bg-primary/10 border border-outline-variant/30 transition-colors">独立开发者工具</a>
+        <a href="home.html?topic=niche-community" class="topic-chip px-3 py-1.5 rounded-md text-sm font-medium bg-surface text-on-surface-variant hover:text-primary hover:bg-primary/10 border border-outline-variant/30 transition-colors">小众兴趣社区</a>
+        <a href="home.html?topic=content-tools"   class="topic-chip px-3 py-1.5 rounded-md text-sm font-medium bg-surface text-on-surface-variant hover:text-primary hover:bg-primary/10 border border-outline-variant/30 transition-colors">内容创作工具</a>
+        <a href="home.html?topic=overseas-seo"    class="topic-chip px-3 py-1.5 rounded-md text-sm font-medium bg-surface text-on-surface-variant hover:text-primary hover:bg-primary/10 border border-outline-variant/30 transition-colors">海外 SEO 站点</a>
+        <a href="home.html?topic=ai-edu"          class="topic-chip px-3 py-1.5 rounded-md text-sm font-medium bg-surface text-on-surface-variant hover:text-primary hover:bg-primary/10 border border-outline-variant/30 transition-colors">AI 教育辅导</a>
+      </div>
+    </section>
+
+    <!-- 底部说明 -->
+    <footer class="text-center py-6">
+      <p class="text-xs text-on-surface-variant/50 font-mono">历史记录保留 90 天 · 数据每 15 分钟自动同步</p>
+    </footer>
+
+  </main>
+  <!-- @main-content:end -->
+
+  <!-- ========== 二次确认模态框（删除单条） ========== -->
+  <div id="modal-confirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-surface rounded-xl shadow-dialog max-w-sm w-full p-6 border border-outline-variant/30">
+      <div class="flex items-start gap-3 mb-4">
+        <div class="w-10 h-10 rounded-md bg-error/15 flex items-center justify-center shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5 text-error"></i>
+        </div>
+        <div>
+          <h3 class="font-display text-base font-semibold text-on-surface">确认删除</h3>
+          <p id="modal-confirm-text" class="text-sm text-on-surface-variant mt-1">删除后无法恢复，是否继续？</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-end gap-2">
+        <button id="btn-confirm-cancel" class="px-4 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors">取消</button>
+        <button id="btn-confirm-ok" class="px-4 py-2 rounded-md text-sm font-medium bg-error text-on-primary hover:opacity-90 transition-colors">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(function () {
+
+      // ===== 搜索框 =====
+      // 后续可实现：输入时对 history-list 中所有 .history-item 的标题/价值描述做大小写不敏感过滤，
+      // 隐藏不匹配的项，更新统计数量。
+      $('#input-search').on('input', function () {
+        const q = $(this).val().trim();
+        console.log('[search] 查询:', q);
+      });
+
+      // ===== 模式筛选（多选 chip） =====
+      // 后续可实现：维护一个 selectedModes 数组（不含 'all'），点击切换 chip 状态。
+      // 当 selectedModes 为空或包含 'all' 时显示全部；否则按 data-mode 过滤 history-item，
+      // 同步更新右侧"共 N 条"计数。
+      $('#history-list').on('click', '.chip-mode', function () { /* placeholder, real handler below */ });
+
+      $('.chip-mode').on('click', function () {
+        const $btn = $(this);
+        const mode = $btn.data('mode');
+        if (mode === 'all') {
+          $('.chip-mode').removeClass('bg-primary/15 text-primary border-primary/20')
+            .addClass('bg-surface-container text-on-surface-variant border-outline-variant/30');
+          $btn.removeClass('bg-surface-container text-on-surface-variant border-outline-variant/30')
+            .addClass('bg-primary/15 text-primary border-primary/20');
+        } else {
+          $btn.toggleClass('bg-primary/15 text-primary border-primary/20 bg-surface-container text-on-surface-variant border-outline-variant/30');
+          $('.chip-mode[data-mode="all"]').removeClass('bg-primary/15 text-primary border-primary/20')
+            .addClass('bg-surface-container text-on-surface-variant border-outline-variant/30');
+        }
+        console.log('[filter] 模式:', $('.chip-mode.bg-primary\\/15').map(function(){ return $(this).data('mode'); }).get());
+      });
+
+      // ===== 时间筛选（单选 chip） =====
+      $('.chip-time').on('click', function () {
+        const $btn = $(this);
+        $('.chip-time').removeClass('bg-primary/15 text-primary border-primary/20')
+          .addClass('bg-surface-container text-on-surface-variant border-outline-variant/30');
+        $btn.removeClass('bg-surface-container text-on-surface-variant border-outline-variant/30')
+          .addClass('bg-primary/15 text-primary border-primary/20');
+        console.log('[filter] 时间:', $btn.data('time'));
+      });
+
+      // ===== 排序（单选 chip） =====
+      $('.chip-sort').on('click', function () {
+        const $btn = $(this);
+        $('.chip-sort').removeClass('bg-primary/15 text-primary border-primary/20')
+          .addClass('bg-surface-container text-on-surface-variant border-outline-variant/30');
+        $btn.removeClass('bg-surface-container text-on-surface-variant border-outline-variant/30')
+          .addClass('bg-primary/15 text-primary border-primary/20');
+        console.log('[sort] 排序:', $btn.data('sort'));
+        // 后续实现：按 data-score 升降序 / 按时间戳对 #history-list 中 .history-item 重排
+      });
+
+      // ===== 列表行 - 查看 / 收藏 / 删除 =====
+      $('#history-list').on('click', '.btn-view', function () {
+        const id = $(this).closest('.history-item').data('id');
+        console.log('[view] 查看记录 id =', id);
+        window.location.href = 'opportunity-detail.html?id=' + id;
+      });
+
+      $('#history-list').on('click', '.btn-fav', function () {
+        const $item = $(this).closest('.history-item');
+        const id = $item.data('id');
+        const isFav = $item.attr('data-fav') === 'true';
+        $item.attr('data-fav', String(!isFav));
+        // 切换星标实心 / 状态标签 / 状态徽章
+        const $icon = $(this).find('i');
+        if (!isFav) {
+          $(this).addClass('text-primary bg-primary/10').removeClass('text-on-surface-variant');
+          $icon.addClass('fill-current');
+          $(this).attr('title', '取消收藏');
+        } else {
+          $(this).removeClass('text-primary bg-primary/10').addClass('text-on-surface-variant');
+          $icon.removeClass('fill-current');
+          $(this).attr('title', '收藏');
+        }
+        console.log('[fav] 收藏切换 id =', id, '→', !isFav);
+      });
+
+      // 删除：打开模态框二次确认
+      let pendingDeleteId = null;
+      $('#history-list').on('click', '.btn-del', function () {
+        const $item = $(this).closest('.history-item');
+        pendingDeleteId = $item.data('id');
+        const title = $item.find('h3').text().trim();
+        $('#modal-confirm-text').text(`确认删除「${title}」？此操作无法恢复。`);
+        $('#modal-confirm').removeClass('hidden');
+      });
+
+      $('#btn-confirm-cancel').on('click', function () {
+        pendingDeleteId = null;
+        $('#modal-confirm').addClass('hidden');
+      });
+      $('#btn-confirm-ok').on('click', function () {
+        if (pendingDeleteId) {
+          $('.history-item[data-id="' + pendingDeleteId + '"]').fadeOut(200, function () { $(this).remove(); updateSelectedCount(); });
+          console.log('[delete] 已删除 id =', pendingDeleteId);
+        }
+        pendingDeleteId = null;
+        $('#modal-confirm').addClass('hidden');
+      });
+      $('#modal-confirm').on('click', function (e) {
+        if (e.target === this) { $(this).addClass('hidden'); pendingDeleteId = null; }
+      });
+
+      // ===== 批量操作 =====
+      function updateSelectedCount() {
+        const n = $('.row-check:checked').length;
+        $('#selected-count').text(n);
+        const enable = n > 0;
+        const $ops = $('#btn-export-selected, #btn-delete-selected');
+        if (enable) {
+          $ops.removeClass('opacity-50 pointer-events-none');
+        } else {
+          $ops.addClass('opacity-50 pointer-events-none');
+        }
+        // 同步全选框状态
+        const total = $('.row-check').length;
+        $('#check-all').prop('checked', total > 0 && n === total);
+      }
+
+      $('#history-list').on('change', '.row-check', function () {
+        updateSelectedCount();
+        console.log('[batch] 当前已选:', $('.row-check:checked').length);
+      });
+
+      $('#check-all').on('change', function () {
+        const checked = $(this).is(':checked');
+        $('.row-check').prop('checked', checked).trigger('change');
+        console.log('[batch] 全选 →', checked);
+      });
+
+      $('#btn-export-selected').on('click', function () {
+        const ids = $('.row-check:checked').closest('.history-item').map(function(){ return $(this).data('id'); }).get();
+        console.log('[batch] 导出选中 ids =', ids);
+      });
+
+      $('#btn-delete-selected').on('click', function () {
+        const ids = $('.row-check:checked').closest('.history-item').map(function(){ return $(this).data('id'); }).get();
+        if (!ids.length) return;
+        console.log('[batch] 删除选中 ids =', ids);
+        $('.row-check:checked').closest('.history-item').fadeOut(200, function(){ $(this).remove(); updateSelectedCount(); });
+      });
+
+      // ===== 顶部按钮 =====
+      $('#btn-export-all').on('click', function () {
+        // 后续实现：调用后端导出全部历史记录为 CSV / JSON，
+        // 触发浏览器下载流程。
+        console.log('[export-all] 导出全部历史记录');
+      });
+      $('#btn-clear-all').on('click', function () {
+        // 后续实现：弹出更严的二次确认（输入"清空"或勾选确认），调用清空接口。
+        console.log('[clear-all] 清空所有历史记录（需二次确认）');
+        pendingDeleteId = '__ALL__';
+        $('#modal-confirm-text').text('确定要清空所有历史记录吗？该操作无法恢复。');
+        $('#modal-confirm').removeClass('hidden');
+      });
+
+      // 建议话题 chip：已通过 a 链接跳转；阻止冒泡即可
+      $('.topic-chip').on('click', function () {
+        const topic = $(this).attr('href');
+        console.log('[topic] 跳转到首页话题:', topic);
+      });
+
+      // 初始计数
+      updateSelectedCount();
+    });
+  </script>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>
+
+    <!-- ========== 2. 筛选 / 搜索栏 ========== -->
+    <section class="bg-surface rounded-xl border border-outline-variant/20 p-4 mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+        <!-- 搜索框 -->
+        <div class="relative flex-1 min-w-0">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 pointer-events-none"></i>
+          <input
+            id="input-search"
+            type="text"
+            placeholder="搜索机会名称或分析主题"
+            class="w-full bg-surface-container border-none rounded-md pl-9 pr-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
+          />
+        </div>
+
+        <!-- 模式筛选（多选 chip） -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-xs text-on-surface-variant mr-1 hidden lg:inline">模式</span>
+          <button data-mode="all"        class="chip-mode px-2.5 py-1 rounded-md text-xs font-medium bg-primary/15 text-primary border border-primary/20">全部</button>
+          <button data-mode="blue-ocean" class="chip-mode px-2.5 py-1 rounded-md text-xs font-medium bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30">蓝海</button>
+          <button data-mode="red-detail" class="chip-mode px-2.5 py-1 rounded-md text-xs font-medium bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30">红海细分</button>
+          <button data-mode="cross"      class="chip-mode px-2.5 py-1 rounded-md text-xs font-medium bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30">跨界</button>
+          <button data-mode="deep"       class="chip-mode px-2.5 py-1 rounded-md text-xs font-medium bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30">深度分析</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-3 pt-3 border-t border-outline-variant/15">
+        <!-- 时间筛选 -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs text-on-surface-variant mr-1">时间</span>
+          <button data-time="week"  class="chip-time px-2.5 py-1 rounded-md text-xs font-medium bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30">本周</button>
+          <button data-time="month" class="chip-time px-2.5 py-1 rounded-md text-xs font-medium bg-primary/15 text-primary border border-primary/20">本月</button>
+          <button data-time="all"   class="chip-time px-2.5 py-1 rounded-md text-xs font-medium bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30">全部</button>
+        </div>
+
+        <!-- 排序 -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs text-on-surface-variant mr-1">排序</span>
+          <button data-sort="newest"  class="chip-sort px-2.5 py-1 rounded-md text-xs font-medium bg-primary/15 text-primary border border-primary/20">最新</button>
+          <button data-sort="oldest"  class="chip-sort px-2.5 py-1 rounded-md text-xs font-medium bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30">最旧</button>
+          <button data-sort="score"   class="chip-sort px-2.5 py-1 rounded-md text-xs font-medium bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30">综合分最高</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 3. 统计概览条 ========== -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <div class="bg-surface rounded-xl p-5 border border-outline-variant/30">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="font-display font-bold font-mono gradient-amber text-3xl leading-none">12</div>
+            <div class="text-sm text-on-surface-variant mt-2">总分析次数</div>
+          </div>
+          <div class="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
+            <i data-lucide="activity" class="w-4 h-4 text-primary"></i>
+          </div>
+        </div>
+        <div class="text-xs text-on-surface-variant/60 font-mono mt-3">单位：次</div>
+      </div>
+      <div class="bg-surface rounded-xl p-5 border border-outline-variant/30">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="font-display font-bold font-mono gradient-amber text-3xl leading-none">18</div>
+            <div class="text-sm text-on-surface-variant mt-2">累计耗时（分钟）</div>
+          </div>
+          <div class="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
+            <i data-lucide="clock" class="w-4 h-4 text-primary"></i>
+          </div>
+        </div>
+        <div class="text-xs text-on-surface-variant/60 font-mono mt-3">≈ 1.5 分钟 / 次</div>
+      </div>
+      <div class="bg-surface rounded-xl p-5 border border-outline-variant/30">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="font-display font-bold font-mono gradient-amber text-3xl leading-none">3</div>
+            <div class="text-sm text-on-surface-variant mt-2">已收藏</div>
+          </div>
+          <div class="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
+            <i data-lucide="star" class="w-4 h-4 text-primary"></i>
+          </div>
+        </div>
+        <div class="text-xs text-on-surface-variant/60 font-mono mt-3">占总数 25%</div>
+      </div>
+      <div class="bg-surface rounded-xl p-5 border border-outline-variant/30">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="font-display font-bold font-mono gradient-amber text-3xl leading-none">0</div>
+            <div class="text-sm text-on-surface-variant mt-2">已实施</div>
+          </div>
+          <div class="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
+            <i data-lucide="rocket" class="w-4 h-4 text-primary"></i>
+          </div>
+        </div>
+        <div class="text-xs text-on-surface-variant/60 font-mono mt-3">即将启动</div>
+      </div>
+    </section>
+
+    <!-- ========== 4. 历史分析列表 ========== -->
+    <section class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-display text-lg font-semibold text-on-surface">分析记录</h2>
+        <span class="text-xs text-on-surface-variant font-mono">共 6 条</span>
+      </div>
+
+      <div id="history-list" class="flex flex-col gap-2">
+
+        <!-- 列表-记录1：蓝海 - 独立开发者 AI 副业方向 -->
+        <div class="history-item bg-surface rounded-xl border border-outline-variant/20 p-4 hover:bg-surface-container/30 transition-colors" data-id="h001" data-mode="blue-ocean" data-score="8.15" data-fav="true">
+          <div class="flex items-center gap-4">
+            <!-- checkbox -->
+            <label class="shrink-0 cursor-pointer">
+              <input type="checkbox" class="row-check sr-only peer" />
+              <div class="w-4 h-4 rounded-sm border border-outline-variant/60 peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+                <i data-lucide="check" class="w-3 h-3 text-on-primary hidden peer-checked:block"></i>
+              </div>
+            </label>
+
+            <!-- 模式色竖条 + 主题 -->
+            <div class="flex items-stretch gap-3 flex-1 min-w-0">
+              <div class="w-1 self-stretch rounded-full bg-mode-blue shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-semibold bg-mode-blue/15 text-mode-blue">蓝海</span>
+                  <h3 class="font-display text-base font-semibold text-on-surface truncate">独立开发者 AI 副业方向</h3>
+                </div>
+                <p class="text-sm text-on-surface-variant mt-1 truncate">一句话价值：找到 5 个适合单人启动的 AI 微产品机会，平均 MRR 潜力 1.2k 美元</p>
+                <div class="flex items-center gap-3 mt-1.5 text-xs text-on-surface-variant/80 font-mono">
+                  <span class="inline-flex items-center gap-1"><i data-lucide="lightbulb" class="w-3 h-3"></i>5 个机会</span>
+                  <span>·</span>
+                  <span>2 小时前</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- mini 雷达 -->
+            <div class="hidden md:block shrink-0">
+              <svg viewBox="0 0 64 64" class="w-14 h-14">
+                <polygon points="32,4 56.25,18 56.25,46 32,60 7.75,46 7.75,18" fill="none" stroke="#252B3B" stroke-width="1"/>
+                <polygon points="32,8 49.4,19.5 47.6,44.5 32,55.2 12.6,42 14.6,21" fill="rgba(79,143,255,0.25)" stroke="#4F8FFF" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+
+            <!-- 综合分 -->
+            <div class="text-right shrink-0 hidden sm:block">
+              <div class="font-mono text-xl font-display font-bold gradient-amber leading-none">8.15</div>
+              <div class="text-[10px] text-on-surface-variant/70 uppercase tracking-wider mt-1">综合分</div>
+            </div>
+
+            <!-- 状态 -->
+            <div class="shrink-0 hidden sm:block">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium bg-primary/15 text-primary">
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i>已收藏
+              </span>
+            </div>
+
+            <!-- 操作 -->
+            <div class="flex items-center gap-1 shrink-0">
+              <button data-action="view" class="btn-view w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="查看">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+              </button>
+              <button data-action="fav" class="btn-fav w-8 h-8 rounded-md flex items-center justify-center text-primary bg-primary/10 transition-colors" title="取消收藏">
+                <i data-lucide="star" class="w-4 h-4 fill-current"></i>
+              </button>
+              <button data-action="delete" class="btn-del w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors" title="删除">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 列表-记录2：红海细分 - AI 写作工具 -->
+        <div class="history-item bg-surface rounded-xl border border-outline-variant/20 p-4 hover:bg-surface-container/30 transition-colors" data-id="h002" data-mode="red-detail" data-score="7.80" data-fav="false">
+          <div class="flex items-center gap-4">
+            <label class="shrink-0 cursor-pointer">
+              <input type="checkbox" class="row-check sr-only peer" />
+              <div class="w-4 h-4 rounded-sm border border-outline-variant/60 peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+                <i data-lucide="check" class="w-3 h-3 text-on-primary hidden peer-checked:block"></i>
+              </div>
+            </label>
+            <div class="flex items-stretch gap-3 flex-1 min-w-0">
+              <div class="w-1 self-stretch rounded-full bg-mode-amber shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-semibold bg-mode-amber/15 text-mode-amber">红海细分</span>
+                  <h3 class="font-display text-base font-semibold text-on-surface truncate">AI 写作工具</h3>
+                </div>
+                <p class="text-sm text-on-surface-variant mt-1 truncate">一句话价值：在拥挤赛道切出 4 个细分人群（学术润色 / 小红书种草 / 跨境 listing / 公众号助手）</p>
+                <div class="flex items-center gap-3 mt-1.5 text-xs text-on-surface-variant/80 font-mono">
+                  <span class="inline-flex items-center gap-1"><i data-lucide="lightbulb" class="w-3 h-3"></i>4 个机会</span>
+                  <span>·</span>
+                  <span>昨天 14:32</span>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block shrink-0">
+              <svg viewBox="0 0 64 64" class="w-14 h-14">
+                <polygon points="32,4 56.25,18 56.25,46 32,60 7.75,46 7.75,18" fill="none" stroke="#252B3B" stroke-width="1"/>
+                <polygon points="32,10 47.5,20.5 45.8,42 32,52 16,39 17.5,23" fill="rgba(255,181,71,0.25)" stroke="#FFB547" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="text-right shrink-0 hidden sm:block">
+              <div class="font-mono text-xl font-display font-bold gradient-amber leading-none">7.80</div>
+              <div class="text-[10px] text-on-surface-variant/70 uppercase tracking-wider mt-1">综合分</div>
+            </div>
+            <div class="shrink-0 hidden sm:block">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">
+                <i data-lucide="check-circle-2" class="w-3 h-3"></i>已完成
+              </span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button data-action="view" class="btn-view w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="查看">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+              </button>
+              <button data-action="fav" class="btn-fav w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="收藏">
+                <i data-lucide="star" class="w-4 h-4"></i>
+              </button>
+              <button data-action="delete" class="btn-del w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors" title="删除">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 列表-记录3：跨界 - AI × 健身 -->
+        <div class="history-item bg-surface rounded-xl border border-outline-variant/20 p-4 hover:bg-surface-container/30 transition-colors" data-id="h003" data-mode="cross" data-score="7.45" data-fav="false">
+          <div class="flex items-center gap-4">
+            <label class="shrink-0 cursor-pointer">
+              <input type="checkbox" class="row-check sr-only peer" />
+              <div class="w-4 h-4 rounded-sm border border-outline-variant/60 peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-colors">
+                <i data-lucide="check" class="w-3 h-3 text-on-primary hidden peer-checked:block"></i>
+              </div>
+            </label>
+            <div class="flex items-stretch gap-3 flex-1 min-w-0">
+              <div class="w-1 self-stretch rounded-full bg-mode-violet shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-semibold bg-mode-violet/15 text-mode-violet">跨界</span>
+                  <h3 class="font-display text-base font-semibold text-on-surface truncate">AI × 健身</h3>
+                </div>
+                <p class="text-sm text-on-surface-variant mt-1 truncate">一句话价值：用 AI 教练切入家庭健身场景，识别 3 个低竞争高 ARPU 的人群切入点</p>
+                <div class="flex items-center gap-3 mt-1.5 text-xs text-on-surface-variant/80 font-mono">
+                  <span class="inline-flex items-center gap-1"><i data-lucide="lightbulb" class="w-3 h-3"></i>3 个机会</span>
+                  <span>·</span>
+                  <span>3 天前</span>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:block shrink-0">
+              <svg viewBox="0 0 64 64" class="w-14 h-14">
+                <polygon points="32,4 56.25,18 56.25,46 32,60 7.75,46 7.75,18" fill="none" stroke="#252B3B" stroke-width="1"/>
+                <polygon points="32,12 44.5,22 43,40 32,50 19,37 20.5,25" fill="rgba(176,122,255,0.25)" stroke="#B07AFF" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="text-right shrink-0 hidden sm:block">
+              <div class="font-mono text-xl font-display font-bold gradient-amber leading-none">7.45</div>
+              <div class="text-[10px] text-on-surface-variant/70 uppercase tracking-wider mt-1">综合分</div>
+            </div>
+            <div class="shrink-0 hidden sm:block">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-xs font-medium bg-success/15 text-success">
+                <i data-lucide="check-circle-2" class="w-3 h-3"></i>已完成
+              </span>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button data-action="view" class="btn-view w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="查看">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+              </button>
+              <button data-action="fav" class="btn-fav w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors" title="收藏">
+                <i data-lucide="star" class="w-4 h-4"></i>
+              </button>
+              <button data-action="delete" class="btn-del w-8 h-8 rounded-md flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-error/10 transition-colors" title="删除">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>

@@ -1,0 +1,44 @@
+{
+  "elements": [
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/home.html"
+      },
+      "title": "首页 / 价值主张与 4 模式入口",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/profile.html"
+      },
+      "title": "用户画像 / 7 字段输入表单",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/opportunities.html"
+      },
+      "title": "机会列表 / 筛选与候选卡片",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/opportunity-detail.html"
+      },
+      "title": "机会详情 / 六维雷达与完整报告",
+      "size": "web"
+    },
+    {
+      "type": "html",
+      "options": {
+        "path": ".cozeproj/prototype/web/history.html"
+      },
+      "title": "历史记录 / 历次分析归档",
+      "size": "web"
+    }
+  ]
+}
