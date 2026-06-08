@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NicheFinder AI - 发现你的下一个创业机会</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            accent: {
+              500: '#8b5cf6',
+              600: '#7c3aed',
+            },
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    }
+    
+    .gradient-border {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      padding: 2px;
+      border-radius: 1rem;
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .mode-card {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+    
+    .mode-card:hover {
+      border-color: #e5e7eb;
+    }
+    
+    .mode-card.active {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    
+    .mode-card.active .mode-icon {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: white;
+    }
+    
+    .loading-dot {
+      animation: loading 1.4s infinite ease-in-out both;
+    }
+    
+    .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes loading {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .slide-up {
+      animation: slideUp 0.6s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .pulse-ring {
+      animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    }
+    
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 1; }
+      80%, 100% { transform: scale(1.3); opacity: 0; }
+    }
+    
+    /* 评分条动画 */
+    .score-bar {
+      transition: width 1s ease-out;
+    }
+    
+    /* Markdown 样式 */
+    .markdown h1 {
+      @apply text-2xl font-bold text-gray-800 mb-4 mt-6;
+    }
+    .markdown h2 {
+      @apply text-xl font-semibold text-gray-700 mb-3 mt-8 border-b border-gray-200 pb-2 flex items-center gap-2;
+    }
+    .markdown h3 {
+      @apply text-lg font-semibold text-gray-700 mb-2 mt-5;
+    }
+    .markdown p {
+      @apply text-gray-600 mb-3 leading-relaxed;
+    }
+    .markdown ul {
+      @apply list-disc pl-6 space-y-2 my-3 text-gray-600;
+    }
+    .markdown ol {
+      @apply list-decimal pl-6 space-y-2 my-3 text-gray-600;
+    }
+    .markdown li {
+      @apply leading-relaxed;
+    }
+    .markdown strong {
+      @apply font-semibold text-gray-800;
+    }
+    .markdown blockquote {
+      @apply border-l-4 border-blue-400 pl-4 italic text-gray-600 my-4 bg-blue-50/50 py-2 pr-3 rounded-r-lg;
+    }
+    .markdown hr {
+      @apply my-6 border-gray-200;
+    }
+    .markdown table {
+      @apply w-full border-collapse mb-4;
+    }
+    .markdown th {
+      @apply bg-gray-100 text-left px-3 py-2 text-sm font-medium text-gray-700 border border-gray-200;
+    }
+    .markdown td {
+      @apply px-3 py-2 text-sm text-gray-600 border border-gray-200;
+    }
+    .markdown code {
+      @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-gray-700;
+    }
+    
+    /* 历史记录项悬停 */
+    .history-item {
+      transition: all 0.2s ease;
+    }
+    .history-item:hover {
+      background: #f8fafc;
+    }
+    
+    /* 复制成功提示 */
+    .copy-toast {
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 1.7s;
+    }
+    
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+    
+    /* 滚动条美化 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-slate-50 to-white min-h-screen">
+  <!-- 导航栏 -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/60">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="goHome()">
+        <div class="w-9 h-9 rounded-xl gradient-bg flex items-center justify-center">
+          <i class="fas fa-compass text-white text-lg"></i>
+        </div>
+        <span class="font-bold text-xl text-gray-800">NicheFinder</span>
+        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">AI</span>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <button onclick="showHistory()" class="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition">
+          <i class="fas fa-history"></i>
+          <span class="hidden sm:inline">历史</span>
+        </button>
+        <div class="relative">
+          <button onclick="toggleUserMenu()" id="user-menu-btn" class="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition">
+            <i class="fas fa-user-circle text-lg"></i>
+            <span class="hidden sm:inline" id="user-name-text">登录</span>
+          </button>
+          <!-- 用户下拉菜单 -->
+          <div id="user-dropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+            <div id="user-logged-out" class="px-4 py-3">
+              <p class="text-sm text-gray-600 mb-3">登录后保存分析记录</p>
+              <button onclick="showLoginModal()" class="w-full py-2 gradient-bg text-white text-sm font-medium rounded-lg hover:opacity-90 transition">
+                免费注册 / 登录
+              </button>
+            </div>
+            <div id="user-logged-in" class="hidden">
+              <div class="px-4 py-3 border-b border-gray-100">
+                <div class="font-medium text-gray-800" id="user-menu-name">用户</div>
+                <div class="text-xs text-gray-500" id="user-menu-plan">免费版</div>
+              </div>
+              <div class="px-4 py-2">
+                <div class="text-xs text-gray-500 mb-1">今日剩余 <span id="user-menu-daily" class="text-blue-600 font-medium">3</span> 次</div>
+                <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div id="user-menu-progress" class="h-full gradient-bg rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="py-1">
+                <button onclick="showApiKeyModal()" class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                  <i class="fas fa-key text-gray-400"></i>
+                  API Key
+                </button>
+                <button onclick="showHistory()" class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                  <i class="fas fa-history text-gray-400"></i>
+                  分析历史
+                </button>
+                <button onclick="upgradePlan()" class="w-full px-4 py-2 text-left text-sm text-amber-600 hover:bg-amber-50 flex items-center gap-2">
+                  <i class="fas fa-crown text-amber-400"></i>
+                  升级套餐
+                </button>
+              </div>
+              <div class="border-t border-gray-100 pt-1">
+                <button onclick="logout()" class="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50 flex items-center gap-2">
+                  <i class="fas fa-sign-out-alt"></i>
+                  退出登录
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a href="#features" class="text-sm text-gray-600 hover:text-gray-900 transition hidden sm:block">产品特点</a>
+        <a href="#how-it-works" class="text-sm text-gray-600 hover:text-gray-900 transition hidden sm:block">工作原理</a>
+      </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 复制成功提示 -->
+  <div id="copy-toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg text-sm z-50 hidden">
+    <i class="fas fa-check-circle mr-2 text-green-400"></i>
+    <span>已复制到剪贴板</span>
+  </div>
+
+  <!-- 主内容区 -->
+  <main id="main-content">
+    <!-- 首页视图 -->
+    <div id="home-view" class="py-16 px-6">
+      <div class="max-w-4xl mx-auto text-center">
+        <!-- 标题区 -->
+        <div class="mb-8 fade-in">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-6">
+            <i class="fas fa-sparkles"></i>
+            <span>基于多Agent协作的创业机会发现引擎</span>
+          </div>
+          
+          <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-6 leading-tight">
+            找到你的下一个
+            <span class="gradient-text">蓝海机会</span>
+          </h1>
+          
+          <p class="text-lg text-gray-600 mb-10 max-w-2xl mx-auto">
+            输入你感兴趣的领域，AI多Agent团队帮你做市场调研、竞争分析、
+            财务评估和技术可行性分析，几分钟输出高质量创业机会报告。
+          </p>
+        </div>
+
+        <!-- 模式选择 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div class="mode-card active p-5 rounded-2xl bg-white shadow-sm border border-gray-200" 
+               data-mode="blue-ocean" onclick="selectMode('blue-ocean')">
+            <div class="mode-icon w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
+              <i class="fas fa-water text-xl"></i>
+            </div>
+            <div class="font-semibold text-gray-800">蓝海模式</div>
+            <div class="text-xs text-gray-500 mt-1">寻找低竞争高增长机会</div>
+          </div>
+          
+          <div class="mode-card p-5 rounded-2xl bg-white shadow-sm border border-gray-200" 
+               data-mode="red-niche" onclick="selectMode('red-niche')">
+            <div class="mode-icon w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center mb-3">
+              <i class="fas fa-bullseye text-xl"></i>
+            </div>
+            <div class="font-semibold text-gray-800">红海细分</div>
+            <div class="text-xs text-gray-500 mt-1">在大市场中找细分缝隙</div>
+          </div>
+          
+          <div class="mode-card p-5 rounded-2xl bg-white shadow-sm border border-gray-200" 
+               data-mode="cross" onclick="selectMode('cross')">
+            <div class="mode-icon w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-3">
+              <i class="fas fa-code-branch text-xl"></i>
+            </div>
+            <div class="font-semibold text-gray-800">跨界机会</div>
+            <div class="text-xs text-gray-500 mt-1">两个领域交叉创新</div>
+          </div>
+          
+          <div class="mode-card p-5 rounded-2xl bg-white shadow-sm border border-gray-200" 
+               data-mode="analyze" onclick="selectMode('analyze')">
+            <div class="mode-icon w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
+              <i class="fas fa-chart-line text-xl"></i>
+            </div>
+            <div class="font-semibold text-gray-800">深度分析</div>
+            <div class="text-xs text-gray-500 mt-1">单产品四维评估</div>
+          </div>
+        </div>
+
+        <!-- 输入框 -->
+        <div class="max-w-2xl mx-auto mb-4">
+          <div class="flex gap-3 items-center bg-white rounded-2xl p-2 shadow-xl shadow-gray-200/50 border border-gray-200">
+            <input
+              type="text"
+              id="query-input"
+              placeholder="例如：独立开发者工具"
+              class="flex-1 px-4 py-3 bg-transparent text-gray-800 placeholder-gray-400 focus:outline-none text-base"
+              onkeydown="if(event.key === 'Enter') startAnalysis()"
+            />
+            <button
+              id="start-btn"
+              onclick="startAnalysis()"
+              class="px-6 py-3 gradient-bg text-white font-medium rounded-xl hover:opacity-90 transition flex items-center gap-2 shadow-lg shadow-blue-500/30"
+            >
+              <span>开始分析</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+          
+          <p class="text-xs text-gray-400 mt-3 text-center">
+            💡 提示：跨界模式请用 " + " 连接两个领域，如 "AI + 教育"
+          </p>
+        </div>
+
+        <!-- 快速示例 -->
+        <div class="flex flex-wrap justify-center gap-2 mt-6">
+          <span class="text-xs text-gray-500">热门领域：</span>
+          <button onclick="quickStart('blue-ocean', '独立开发者工具')" 
+                  class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full hover:bg-blue-100 hover:text-blue-600 transition">
+            🔧 独立开发者工具
+          </button>
+          <button onclick="quickStart('blue-ocean', 'AI教育应用')" 
+                  class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full hover:bg-blue-100 hover:text-blue-600 transition">
+            📚 AI教育应用
+          </button>
+          <button onclick="quickStart('red-niche', 'AI写作工具')" 
+                  class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full hover:bg-rose-100 hover:text-rose-600 transition">
+            ✍️ AI写作
+          </button>
+          <button onclick="quickStart('cross', 'AI + 健身')" 
+                  class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full hover:bg-purple-100 hover:text-purple-600 transition">
+            💪 AI + 健身
+          </button>
+          <button onclick="quickStart('cross', '医疗 + 大数据')" 
+                  class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full hover:bg-purple-100 hover:text-purple-600 transition">
+            🏥 医疗 + 大数据
+          </button>
+          <button onclick="quickStart('analyze', '智能客服系统')" 
+                  class="text-xs px-3 py-1.5 bg-gray-100 text-gray-600 rounded-full hover:bg-emerald-100 hover:text-emerald-600 transition">
+            💬 智能客服
+          </button>
+        </div>
+      </div>
+
+      <!-- 功能特点 -->
+      <section id="features" class="py-20 px-6 mt-10">
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">为什么用 NicheFinder？</h2>
+            <p class="text-gray-600 max-w-xl mx-auto">
+              基于成熟的创业方法论和AI Agent技术，帮你高效发现有价值的利基市场
+            </p>
+          </div>
+          
+          <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="p-6 rounded-2xl bg-white border border-gray-200 card-hover">
+              <div class="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center mb-4">
+                <i class="fas fa-users text-white text-xl"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">多Agent协作</h3>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                5个专业Agent协同工作，市场/竞争/财务/技术四维全面分析
+              </p>
+            </div>
+            
+            <div class="p-6 rounded-2xl bg-white border border-gray-200 card-hover">
+              <div class="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center mb-4">
+                <i class="fas fa-bolt text-white text-xl"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">分钟级输出</h3>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                基于全网数据的深度调研，几分钟就能输出完整的机会报告
+              </p>
+            </div>
+            
+            <div class="p-6 rounded-2xl bg-white border border-gray-200 card-hover">
+              <div class="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center mb-4">
+                <i class="fas fa-chart-radar text-white text-xl"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">六维评估体系</h3>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                科学的雷达图评分，量化评估每个机会的吸引力和可行性
+              </p>
+            </div>
+            
+            <div class="p-6 rounded-2xl bg-white border border-gray-200 card-hover">
+              <div class="w-12 h-12 rounded-xl gradient-bg flex items-center justify-center mb-4">
+                <i class="fas fa-rocket text-white text-xl"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">行动导向</h3>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                不只是分析报告，还给你第一名的7天启动验证行动计划
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 工作原理 -->
+      <section id="how-it-works" class="py-20 px-6 bg-gradient-to-b from-gray-50 to-white">
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">多Agent如何协作？</h2>
+            <p class="text-gray-600">模拟真实投资决策流程，5个专业Agent组成虚拟分析师团队</p>
+          </div>
+          
+          <div class="grid md:grid-cols-5 gap-4">
+            <div class="text-center p-4">
+              <div class="w-14 h-14 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-search text-white text-xl"></i>
+              </div>
+              <h4 class="font-semibold text-gray-800 mb-1">市场分析师</h4>
+              <p class="text-xs text-gray-500">评估市场规模、增长趋势、用户画像</p>
+            </div>
+            
+            <div class="text-center p-4">
+              <div class="w-14 h-14 bg-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-chess text-white text-xl"></i>
+              </div>
+              <h4 class="font-semibold text-gray-800 mb-1">竞争情报员</h4>
+              <p class="text-xs text-gray-500">分析竞争对手、差异化机会、进入壁垒</p>
+            </div>
+            
+            <div class="text-center p-4">
+              <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-dollar-sign text-white text-xl"></i>
+              </div>
+              <h4 class="font-semibold text-gray-800 mb-1">财务建模师</h4>
+              <p class="text-xs text-gray-500">评估商业模式、定价策略、盈利周期</p>
+            </div>
+            
+            <div class="text-center p-4">
+              <div class="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-code text-white text-xl"></i>
+              </div>
+              <h4 class="font-semibold text-gray-800 mb-1">技术评估师</h4>
+              <p class="text-xs text-gray-500">评估技术可行性、开发难度、技术风险</p>
+            </div>
+            
+            <div class="text-center p-4">
+              <div class="w-14 h-14 bg-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-crown text-white text-xl"></i>
+              </div>
+              <h4 class="font-semibold text-gray-800 mb-1">首席评审官</h4>
+              <p class="text-xs text-gray-500">综合四维分析，给出最终评分和建议</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 分析视图 -->
+    <div id="analysis-view" class="hidden py-12 px-6">
+      <div class="max-w-5xl mx-auto">
+        <!-- 返回按钮 -->
+        <button onclick="goHome()" class="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition">
+          <i class="fas fa-arrow-left"></i>
+          <span>返回首页</span>
+        </button>
+        
+        <!-- 加载状态 -->
+        <div id="loading-state" class="text-center py-12">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-medium mb-8">
+            <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            <span id="analysis-mode-label">蓝海模式分析中</span>
+          </div>
+          
+          <h2 class="text-2xl font-bold text-gray-800 mb-2">
+            正在分析「<span id="analysis-query">独立开发者工具</span>」
+          </h2>
+          <p class="text-gray-500 mb-10">
+            AI多Agent团队正在工作，预计需要 3-8 分钟
+          </p>
+
+          <!-- 步骤指示器 -->
+          <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-200 p-6">
+            <div class="space-y-4" id="steps-container">
+              <div class="flex items-start gap-3 step-item" data-step="1">
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                  <i class="fas fa-spinner fa-spin text-white text-sm"></i>
+                </div>
+                <div class="flex-1 pt-1">
+                  <div class="font-medium text-gray-800">初始化分析引擎</div>
+                  <div class="text-sm text-gray-500">正在启动多Agent系统...</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-3 step-item opacity-50" data-step="2">
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <span class="text-sm font-medium text-gray-500">2</span>
+                </div>
+                <div class="flex-1 pt-1">
+                  <div class="font-medium text-gray-600">全网数据收集</div>
+                  <div class="text-sm text-gray-400">搜索市场数据、竞品信息、用户反馈</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-3 step-item opacity-50" data-step="3">
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <span class="text-sm font-medium text-gray-500">3</span>
+                </div>
+                <div class="flex-1 pt-1">
+                  <div class="font-medium text-gray-600">多维度分析</div>
+                  <div class="text-sm text-gray-400">市场/竞争/财务/技术四维分析中</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-3 step-item opacity-50" data-step="4">
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <span class="text-sm font-medium text-gray-500">4</span>
+                </div>
+                <div class="flex-1 pt-1">
+                  <div class="font-medium text-gray-600">综合评估排序</div>
+                  <div class="text-sm text-gray-400">首席评审官正在综合评分</div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-3 step-item opacity-50" data-step="5">
+                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <span class="text-sm font-medium text-gray-500">5</span>
+                </div>
+                <div class="flex-1 pt-1">
+                  <div class="font-medium text-gray-600">生成分析报告</div>
+                  <div class="text-sm text-gray-400">整理输出结构化报告</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 提示 -->
+          <div class="mt-8 p-4 bg-amber-50 rounded-xl border border-amber-200 max-w-md mx-auto">
+            <div class="flex items-start gap-3">
+              <i class="fas fa-lightbulb text-amber-500 flex-shrink-0 mt-0.5"></i>
+              <div class="text-sm text-amber-700 text-left">
+                <p class="font-medium mb-1">分析需要一些时间</p>
+                <p class="text-amber-600">
+                  AI正在全网搜索数据并进行多维度分析，请耐心等待。
+                  你可以先去喝杯咖啡，回来就能看到完整报告。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 结果状态 -->
+        <div id="result-state" class="hidden">
+          <!-- 报告头部 -->
+          <div class="mb-8 slide-up">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 text-green-700 text-sm font-medium mb-4">
+              <i class="fas fa-check-circle"></i>
+              <span>分析完成</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2" id="result-title">
+              蓝海模式分析报告
+            </h1>
+            <p class="text-gray-500" id="result-subtitle">
+              分析主题：独立开发者工具
+            </p>
+          </div>
+
+          <!-- 评分总览卡片 -->
+          <div id="score-overview" class="grid md:grid-cols-3 gap-6 mb-8 hidden">
+            <!-- 综合评分卡片 -->
+            <div class="md:col-span-1 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-200 p-6 slide-up" style="animation-delay: 0.1s">
+              <div class="text-center">
+                <div class="text-sm text-gray-500 mb-2">综合评分</div>
+                <div class="relative inline-flex items-center justify-center">
+                  <svg class="w-32 h-32 transform -rotate-90">
+                    <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                    <circle id="score-circle" cx="64" cy="64" r="56" stroke="url(#gradient)" stroke-width="8" fill="none"
+                            stroke-dasharray="352" stroke-dashoffset="352" stroke-linecap="round"
+                            class="transition-all duration-1000 ease-out"/>
+                    <defs>
+                      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#3b82f6"/>
+                        <stop offset="100%" style="stop-color:#8b5cf6"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <span id="total-score" class="text-4xl font-bold gradient-text">0</span>
+                  </div>
+                </div>
+                <div id="score-level" class="text-sm text-gray-600 mt-2">加载中...</div>
+              </div>
+              
+              <!-- 关键指标 -->
+              <div class="mt-6 space-y-3">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500">市场吸引力</span>
+                  <span id="market-score" class="font-medium text-gray-800">-</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500">竞争友好度</span>
+                  <span id="competition-score" class="font-medium text-gray-800">-</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500">商业可行性</span>
+                  <span id="business-score" class="font-medium text-gray-800">-</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500">技术可行性</span>
+                  <span id="tech-score" class="font-medium text-gray-800">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 雷达图卡片 -->
+            <div class="md:col-span-2 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-200 p-6 slide-up" style="animation-delay: 0.2s">
+              <h3 class="font-semibold text-gray-800 mb-4">六维评分雷达图</h3>
+              <div class="h-64">
+                <canvas id="radar-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- 报告内容 -->
+          <div class="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-200 p-8 slide-up" style="animation-delay: 0.3s">
+            <div id="report-content" class="markdown">
+              <!-- 报告内容将在这里渲染 -->
+            </div>
+          </div>
+
+          <!-- 底部操作 -->
+          <div class="mt-8 flex flex-wrap justify-center gap-4">
+            <button onclick="goHome()" 
+                    class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition flex items-center gap-2">
+              <i class="fas fa-plus"></i>
+              开始新的分析
+            </button>
+            <button onclick="shareReport()" 
+                    class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition flex items-center gap-2">
+              <i class="fas fa-share-alt"></i>
+              分享报告
+            </button>
+            <button onclick="downloadReport()" 
+                    class="px-6 py-3 gradient-bg text-white font-medium rounded-xl hover:opacity-90 transition shadow-lg shadow-blue-500/25 flex items-center gap-2">
+              <i class="fas fa-download"></i>
+              下载完整报告
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 历史记录弹窗 -->
+    <div id="history-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-bold text-gray-800">
+            <i class="fas fa-history mr-2 text-blue-500"></i>
+            历史分析记录
+          </h3>
+          <button onclick="hideHistory()" class="text-gray-400 hover:text-gray-600 transition">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div id="history-list" class="flex-1 overflow-y-auto p-4">
+          <!-- 历史记录将在这里渲染 -->
+        </div>
+        <div class="p-4 border-t border-gray-200">
+          <button onclick="clearHistory()" class="w-full py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition">
+            <i class="fas fa-trash-alt mr-2"></i>
+            清空所有记录
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 登录/注册弹窗 -->
+    <div id="login-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-bold text-gray-800">
+            <i class="fas fa-user-circle mr-2 text-blue-500"></i>
+            免费注册
+          </h3>
+          <button onclick="hideLoginModal()" class="text-gray-400 hover:text-gray-600 transition">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div class="p-6">
+          <div class="text-center mb-6">
+            <div class="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-compass text-white text-2xl"></i>
+            </div>
+            <h4 class="font-bold text-gray-800 text-xl mb-1">欢迎使用 NicheFinder</h4>
+            <p class="text-sm text-gray-500">输入邮箱，立即开始发现创业机会</p>
+          </div>
+          
+          <form id="register-form" onsubmit="handleRegister(event)">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">昵称（可选）</label>
+              <input type="text" id="register-name" placeholder="给自己起个名字"
+                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+            </div>
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-1">邮箱（可选）</label>
+              <input type="email" id="register-email" placeholder="your@email.com"
+                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+            </div>
+            <button type="submit" 
+                    class="w-full py-3 gradient-bg text-white font-medium rounded-xl hover:opacity-90 transition shadow-lg shadow-blue-500/30">
+              立即注册
+            </button>
+          </form>
+          
+          <div class="mt-6 text-center text-xs text-gray-400">
+            <p>注册即表示同意 <a href="#" class="text-blue-500 hover:underline">服务条款</a> 和 <a href="#" class="text-blue-500 hover:underline">隐私政策</a></p>
+          </div>
+          
+          <!-- 注册成功提示 -->
+          <div id="register-success" class="hidden mt-6 p-4 bg-green-50 rounded-xl border border-green-200">
+            <div class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-green-500 text-xl mt-0.5"></i>
+              <div>
+                <h5 class="font-medium text-green-800 mb-1">注册成功！</h5>
+                <p class="text-sm text-green-600 mb-2">请保存好您的API Key</p>
+                <div class="bg-white px-3 py-2 rounded-lg border border-green-200 font-mono text-sm text-gray-700 break-all" id="new-api-key">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Key 弹窗 -->
+    <div id="apikey-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-bold text-gray-800">
+            <i class="fas fa-key mr-2 text-amber-500"></i>
+            API Key
+          </h3>
+          <button onclick="hideApiKeyModal()" class="text-gray-400 hover:text-gray-600 transition">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div class="p-6">
+          <p class="text-sm text-gray-600 mb-4">
+            您的API Key用于调用分析接口，请妥善保管。
+          </p>
+          
+          <div class="bg-gray-50 px-4 py-3 rounded-xl border border-gray-200 mb-4">
+            <div class="flex items-center justify-between">
+              <code id="user-api-key" class="text-sm text-gray-700 font-mono break-all">
+                -
+              </code>
+              <button onclick="copyApiKey()" class="text-blue-500 hover:text-blue-600 text-sm flex-shrink-0 ml-2">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="text-xs text-gray-400">
+            <p>💡 提示：API Key已保存在本地浏览器中，调用接口时会自动携带。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 升级套餐弹窗 -->
+    <div id="upgrade-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-lg font-bold text-gray-800">
+            <i class="fas fa-crown mr-2 text-amber-500"></i>
+            升级套餐
+          </h3>
+          <button onclick="hideUpgradeModal()" class="text-gray-400 hover:text-gray-600 transition">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        
+        <div class="p-6">
+          <div class="grid md:grid-cols-3 gap-4">
+            <!-- 免费版 -->
+            <div class="border border-gray-200 rounded-xl p-5 hover:border-blue-300 transition">
+              <div class="text-sm text-gray-500 mb-1">当前方案</div>
+              <div class="text-2xl font-bold text-gray-800 mb-4">免费版</div>
+              <div class="text-3xl font-bold text-gray-900 mb-4">¥0<span class="text-sm font-normal text-gray-500">/月</span></div>
+              <ul class="space-y-2 mb-6 text-sm text-gray-600">
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  每日 3 次分析
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  四大分析模式
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  本地历史记录
+                </li>
+                <li class="flex items-center gap-2 text-gray-300">
+                  <i class="fas fa-times"></i>
+                  优先支持
+                </li>
+              </ul>
+            </div>
+            
+            <!-- 专业版 -->
+            <div class="border-2 border-blue-500 rounded-xl p-5 relative bg-gradient-to-b from-blue-50/50 to-white">
+              <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span class="px-3 py-1 bg-blue-500 text-white text-xs font-medium rounded-full">最受欢迎</span>
+              </div>
+              <div class="text-sm text-blue-600 mb-1">Pro</div>
+              <div class="text-2xl font-bold text-gray-800 mb-4">专业版</div>
+              <div class="text-3xl font-bold text-gray-900 mb-4">¥29<span class="text-sm font-normal text-gray-500">/月</span></div>
+              <ul class="space-y-2 mb-6 text-sm text-gray-600">
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  每日 20 次分析
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  四大分析模式
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  云端历史记录
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  优先技术支持
+                </li>
+              </ul>
+              <button onclick="handleUpgrade('pro')" class="w-full py-2 gradient-bg text-white font-medium rounded-lg hover:opacity-90 transition">
+                立即升级
+              </button>
+            </div>
+            
+            <!-- 企业版 -->
+            <div class="border border-gray-200 rounded-xl p-5 hover:border-purple-300 transition">
+              <div class="text-sm text-purple-600 mb-1">Enterprise</div>
+              <div class="text-2xl font-bold text-gray-800 mb-4">企业版</div>
+              <div class="text-3xl font-bold text-gray-900 mb-4">定制<span class="text-sm font-normal text-gray-500">/月</span></div>
+              <ul class="space-y-2 mb-6 text-sm text-gray-600">
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  无限次分析
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  API 接入
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  定制化需求
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-check text-green-500"></i>
+                  专属技术支持
+                </li>
+              </ul>
+              <button onclick="handleUpgrade('enterprise')" class="w-full py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition">
+                联系我们
+              </button>
+            </div>
+          </div>
+          
+          <div class="mt-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
+            <div class="flex items-start gap-3">
+              <i class="fas fa-lightbulb text-amber-500 mt-0.5"></i>
+              <div class="text-sm text-amber-700">
+                <p class="font-medium">支付功能开发中...</p>
+                <p class="text-amber-600">目前所有功能免费开放使用，欢迎体验！</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="py-8 px-6 border-t border-gray-200 bg-white">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded gradient-bg"></div>
+        <span class="text-sm text-gray-600">© 2025 NicheFinder AI. 用AI发现创业机会。</span>
+      </div>
+      <div class="text-xs text-gray-400">
+        免责声明：本工具生成的分析仅供参考，不构成投资建议。
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 当前状态
+    let currentMode = 'blue-ocean';
+    let currentTaskId = null;
+    let pollInterval = null;
+    let radarChart = null;
+    let currentReport = null;
+    
+    // 模式名称映射
+    const modeNames = {
+      'blue-ocean': '蓝海模式',
+      'red-niche': '红海细分模式',
+      'cross': '跨界机会模式',
+      'analyze': '深度分析模式',
+    };
+    
+    const modeIcons = {
+      'blue-ocean': 'fa-water',
+      'red-niche': 'fa-bullseye',
+      'cross': 'fa-code-branch',
+      'analyze': 'fa-chart-line',
+    };
+    
+    // ========== 模式选择 ==========
+    function selectMode(mode) {
+      currentMode = mode;
+      
+      document.querySelectorAll('.mode-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+      
+      const input = document.getElementById('query-input');
+      const placeholders = {
+        'blue-ocean': '例如：独立开发者工具、企业SaaS、AI应用',
+        'red-niche': '例如：AI写作工具、项目管理软件、CRM系统',
+        'cross': '例如：AI + 教育、医疗 + 大数据、游戏 + 社交',
+        'analyze': '例如：AI配音工具、智能客服系统',
+      };
+      input.placeholder = placeholders[mode] || '请输入...';
+    }
+    
+    function quickStart(mode, query) {
+      selectMode(mode);
+      document.getElementById('query-input').value = query;
+      startAnalysis();
+    }
+    
+    // ========== 开始分析 ==========
+    async function startAnalysis() {
+      const query = document.getElementById('query-input').value.trim();
+      
+      if (!query) {
+        alert('请输入分析内容');
+        return;
+      }
+      
+      // 切换视图
+      document.getElementById('home-view').classList.add('hidden');
+      document.getElementById('analysis-view').classList.remove('hidden');
+      document.getElementById('result-state').classList.add('hidden');
+      document.getElementById('loading-state').classList.remove('hidden');
+      document.getElementById('score-overview').classList.add('hidden');
+      
+      // 更新显示
+      document.getElementById('analysis-mode-label').textContent = modeNames[currentMode] + '分析中';
+      document.getElementById('analysis-query').textContent = query;
+      
+      updateStep(1);
+      
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: currentMode, query: query }),
+        });
+        
+        if (!response.ok) throw new Error('请求失败');
+        
+        const data = await response.json();
+        currentTaskId = data.task_id;
+        startPolling();
+        
+      } catch (error) {
+        console.error('分析失败:', error);
+        console.log('API不可用，使用模拟数据');
+        showMockResult(query);
+      }
+    }
+    
+    // ========== 轮询结果 ==========
+    function startPolling() {
+      if (pollInterval) clearInterval(pollInterval);
+      
+      let step = 1;
+      const maxSteps = 5;
+      
+      const stepInterval = setInterval(() => {
+        if (step < maxSteps) {
+          step++;
+          updateStep(step);
+        }
+      }, 30000);
+      
+      pollInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/tasks/${currentTaskId}`);
+          const data = await response.json();
+          
+          if (data.status === 'completed') {
+            clearInterval(pollInterval);
+            clearInterval(stepInterval);
+            updateStep(5);
+            showResult(data.result);
+          } else if (data.status === 'failed') {
+            clearInterval(pollInterval);
+            clearInterval(stepInterval);
+            showError(data.error || '分析失败');
+          }
+        } catch (error) {
+          console.error('轮询失败:', error);
+          setTimeout(() => {
+            if (pollInterval) {
+              clearInterval(pollInterval);
+              clearInterval(stepInterval);
+              const query = document.getElementById('analysis-query').textContent;
+              showMockResult(query);
+            }
+          }, 10000);
+        }
+      }, 3000);
+    }
+    
+    // ========== 更新步骤 ==========
+    function updateStep(stepNum) {
+      const steps = document.querySelectorAll('.step-item');
+      
+      steps.forEach((step, index) => {
+        const currentStep = index + 1;
+        const iconEl = step.querySelector('.w-8');
+        const textEl = step.querySelector('.font-medium');
+        
+        if (currentStep < stepNum) {
+          step.classList.remove('opacity-50');
+          iconEl.className = 'w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0';
+          iconEl.innerHTML = '<i class="fas fa-check text-white text-sm"></i>';
+          textEl.className = 'font-medium text-gray-800';
+        } else if (currentStep === stepNum) {
+          step.classList.remove('opacity-50');
+          iconEl.className = 'w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0';
+          iconEl.innerHTML = '<i class="fas fa-spinner fa-spin text-white text-sm"></i>';
+          textEl.className = 'font-medium text-gray-800';
+        } else {
+          step.classList.add('opacity-50');
+          iconEl.className = 'w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0';
+          iconEl.innerHTML = `<span class="text-sm font-medium text-gray-500">${currentStep}</span>`;
+          textEl.className = 'font-medium text-gray-600';
+        }
+      });
+    }
+    
+    // ========== 显示结果 ==========
+    function showResult(result) {
+      currentReport = result;
+      
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('result-state').classList.remove('hidden');
+      
+      document.getElementById('result-title').textContent = modeNames[currentMode] + '分析报告';
+      document.getElementById('result-subtitle').textContent = '分析主题：' + document.getElementById('analysis-query').textContent;
+      
+      // 解析评分数据并渲染可视化
+      const scores = extractScores(result);
+      if (scores && Object.keys(scores).length > 0) {
+        renderScoreOverview(scores);
+      }
+      
+      // 渲染Markdown
+      document.getElementById('report-content').innerHTML = renderMarkdown(result);
+      
+      // 保存到历史记录
+      saveToHistory(result);
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // ========== 提取评分数据 ==========
+    function extractScores(text) {
+      const scores = {};
+      
+      // 匹配表格中的评分
+      const scorePatterns = [
+        { key: 'market', label: '市场吸引力', pattern: /市场吸引力.*?(\d+\.?\d*)\s*分/ },
+        { key: 'competition', label: '竞争友好度', pattern: /竞争友好度.*?(\d+\.?\d*)\s*分/ },
+        { key: 'business', label: '商业可行性', pattern: /商业可行性.*?(\d+\.?\d*)\s*分/ },
+        { key: 'tech', label: '技术可行性', pattern: /技术可行性.*?(\d+\.?\d*)\s*分/ },
+        { key: 'timing', label: '时机成熟度', pattern: /时机成熟度.*?(\d+\.?\d*)\s*分/ },
+        { key: 'team', label: '团队适配度', pattern: /团队适配度.*?(\d+\.?\d*)\s*分/ },
+        { key: 'total', label: '综合评分', pattern: /加权总分.*?(\d+\.?\d*)\s*分/ },
+      ];
+      
+      scorePatterns.forEach(item => {
+        const match = text.match(item.pattern);
+        if (match) {
+          scores[item.key] = {
+            value: parseFloat(match[1]),
+            label: item.label
+          };
+        }
+      });
+      
+      // 如果没找到总分，计算平均值
+      if (!scores.total) {
+        const values = Object.values(scores).map(s => s.value);
+        if (values.length > 0) {
+          const avg = values.reduce((a, b) => a + b, 0) / values.length;
+          scores.total = { value: Math.round(avg * 10) / 10, label: '综合评分' };
+        }
+      }
+      
+      return scores;
+    }
+    
+    // ========== 渲染评分总览 ==========
+    function renderScoreOverview(scores) {
+      document.getElementById('score-overview').classList.remove('hidden');
+      
+      // 更新左侧卡片
+      const totalScore = scores.total ? scores.total.value : 0;
+      document.getElementById('total-score').textContent = totalScore.toFixed(1);
+      
+      // 评分等级
+      let level = '';
+      let levelColor = '';
+      if (totalScore >= 8.5) { level = '绝佳机会'; levelColor = 'text-green-600'; }
+      else if (totalScore >= 7.0) { level = '值得考虑'; levelColor = 'text-blue-600'; }
+      else if (totalScore >= 5.5) { level = '有一定风险'; levelColor = 'text-amber-600'; }
+      else { level = '需谨慎评估'; levelColor = 'text-red-600'; }
+      
+      document.getElementById('score-level').textContent = level;
+      document.getElementById('score-level').className = `text-sm font-medium mt-2 ${levelColor}`;
+      
+      // 更新环形进度
+      const circle = document.getElementById('score-circle');
+      const circumference = 2 * Math.PI * 56;
+      const offset = circumference - (totalScore / 10) * circumference;
+      setTimeout(() => {
+        circle.style.strokeDashoffset = offset;
+      }, 300);
+      
+      // 更新各维度分数
+      if (scores.market) document.getElementById('market-score').textContent = scores.market.value.toFixed(1);
+      if (scores.competition) document.getElementById('competition-score').textContent = scores.competition.value.toFixed(1);
+      if (scores.business) document.getElementById('business-score').textContent = scores.business.value.toFixed(1);
+      if (scores.tech) document.getElementById('tech-score').textContent = scores.tech.value.toFixed(1);
+      
+      // 渲染雷达图
+      renderRadarChart(scores);
+    }
+    
+    // ========== 渲染雷达图 ==========
+    function renderRadarChart(scores) {
+      const ctx = document.getElementById('radar-chart').getContext('2d');
+      
+      const labels = [];
+      const data = [];
+      
+      const dimensionOrder = ['market', 'competition', 'business', 'tech', 'timing', 'team'];
+      dimensionOrder.forEach(key => {
+        if (scores[key]) {
+          labels.push(scores[key].label);
+          data.push(scores[key].value);
+        }
+      });
+      
+      if (labels.length < 3) return;
+      
+      if (radarChart) {
+        radarChart.destroy();
+      }
+      
+      radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '评分',
+            data: data,
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(139, 92, 246, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              min: 0,
+              max: 10,
+              beginAtZero: true,
+              ticks: {
+                stepSize: 2,
+                font: { size: 10 }
+              },
+              pointLabels: {
+                font: { size: 12, weight: '500' },
+                color: '#374151'
+              },
+              grid: {
+                color: 'rgba(229, 231, 235, 0.8)'
+              },
+              angleLines: {
+                color: 'rgba(229, 231, 235, 0.8)'
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.parsed.r.toFixed(1) + ' 分';
+                }
+              }
+            }
+          },
+          animation: {
+            duration: 1500,
+            easing: 'easeOutQuart'
+          }
+        }
+      });
+    }
+    
+    // ========== 显示错误 ==========
+    function showError(error) {
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('result-state').classList.remove('hidden');
+      document.getElementById('report-content').innerHTML = `
+        <div class="text-center py-12">
+          <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">分析失败</h3>
+          <p class="text-gray-500">${error}</p>
+          <button onclick="goHome()" class="mt-6 px-6 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition">
+            返回重试
+          </button>
+        </div>
+      `;
+    }
+    
+    // ========== 返回首页 ==========
+    function goHome() {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+      currentTaskId = null;
+      
+      document.getElementById('analysis-view').classList.add('hidden');
+      document.getElementById('home-view').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // ========== 下载报告 ==========
+    function downloadReport() {
+      const content = currentReport || document.getElementById('report-content').innerText;
+      const blob = new Blob([content], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `niche-analysis-${Date.now()}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    // ========== 分享报告 ==========
+    function shareReport() {
+      const query = document.getElementById('analysis-query').textContent;
+      const shareText = `【${modeNames[currentMode]}分析报告】\n分析主题：${query}\n\n使用 NicheFinder AI 生成的创业机会分析报告`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: 'NicheFinder 分析报告',
+          text: shareText,
+          url: window.location.href,
+        }).catch(console.error);
+      } else {
+        // 复制到剪贴板
+        navigator.clipboard.writeText(shareText + '\n\n' + (currentReport || '')).then(() => {
+          showCopyToast();
+        }).catch(() => {
+          alert('分享链接已复制');
+        });
+      }
+    }
+    
+    // ========== 复制提示 ==========
+    function showCopyToast() {
+      const toast = document.getElementById('copy-toast');
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2000);
+    }
+    
+    // ========== Markdown渲染 ==========
+    function renderMarkdown(text) {
+      if (!text) return '';
+      
+      let html = text;
+      
+      // 转义危险标签
+      html = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+      html = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+      
+      // 处理代码块
+      html = html.replace(/```([\s\S]*?)```/g, function(match, content) {
+        return '<pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm my-4"><code>' + content.trim() + '</code></pre>';
+      });
+      
+      // 标题
+      html = html.replace(/^###### (.*$)/gim, '<h6>$1</h6>');
+      html = html.replace(/^##### (.*$)/gim, '<h5>$1</h5>');
+      html = html.replace(/^#### (.*$)/gim, '<h4>$1</h4>');
+      html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+      html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+      html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+      
+      // 加粗
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      
+      // 斜体
+      html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      
+      // 行内代码
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      
+      // 分隔线
+      html = html.replace(/^---$/gm, '<hr />');
+      
+      // 引用
+      html = html.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
+      
+      // 无序列表 - 先标记
+      html = html.replace(/^[-*+] (.*$)/gim, '<li>$1</li>');
+      
+      // 有序列表
+      html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+      
+      // 段落
+      html = html.replace(/\n\n/g, '</p><p>');
+      html = '<p>' + html + '</p>';
+      
+      // 清除空段落
+      html = html.replace(/<p>\s*<\/p>/g, '');
+      
+      // 包裹连续的li为ul
+      html = html.replace(/(<li>.*?<\/li>\n?)+/g, function(match) {
+        return '<ul class="list-disc pl-6 space-y-2 my-3 text-gray-600">' + match + '</ul>';
+      });
+      
+      // 移除p标签包裹的ul
+      html = html.replace(/<p>(<ul[\s\S]*?<\/ul>)<\/p>/g, '$1');
+      
+      // 处理表格
+      html = html.replace(/\|.*\|/g, function(match) {
+        // 检查是否是表格分隔行
+        if (/\|[-:\s]+\|/.test(match) && match.replace(/[\|\-\s:]/g, '').length < 5) {
+          return '<!--table-separator-->';
+        }
+        return match;
+      });
+      
+      // 链接
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">$1</a>');
+      
+      return html;
+    }
+    
+    // ========== 模拟数据 ==========
+    function showMockResult(query) {
+      updateStep(5);
+      
+      const mockReport = `# 📊 ${modeNames[currentMode]}分析报告
+
+**分析主题**: ${query}  
+**分析时间**: ${new Date().toLocaleString('zh-CN')}
+
+---
+
+## 一、六维评分雷达总览
+
+| 维度 | 权重 | 评分 | 说明 |
+|------|------|------|------|
+| 市场吸引力 | 30% | 7.5分 | 市场规模较大，增长趋势明显 |
+| 竞争友好度 | 20% | 7.0分 | 竞争格局尚未固化，存在差异化空间 |
+| 商业可行性 | 20% | 6.5分 | 付费意愿中等，需要验证定价策略 |
+| 技术可行性 | 15% | 8.0分 | 技术成熟，开发难度适中 |
+| 时机成熟度 | 10% | 7.0分 | 处于成长期，市场教育成本适中 |
+| 团队适配度 | 5% | 7.0分 | 所需能力与常见团队配置匹配 |
+
+**加权总分: 7.25分**
+
+---
+
+## 二、核心发现
+
+### 🔍 机会点
+1. **市场痛点明确**：用户对现有解决方案有明显不满
+2. **增长趋势良好**：近一年搜索量增长超过40%
+3. **差异化空间大**：现有产品功能趋同，有明确的细分机会
+
+### ⚠️ 风险点
+1. **巨头可能进入**：如果市场验证成功，大厂可能快速跟进
+2. **获客成本较高**：需要建立有效的用户获取渠道
+3. **付费意愿待验证**：需要通过MVP验证用户付费意愿
+
+---
+
+## 三、Top 3 机会方向
+
+### 🥇 第一名：垂直领域专属AI助手
+- **核心逻辑**: 针对特定行业用户的工作流痛点，提供深度整合的AI解决方案
+- **目标用户**: 专业从业者、中小企业特定部门、垂直领域爱好者
+- **差异化**: 更懂行业术语、更贴合工作流、更专业的输出质量
+- **预计市场规模**: 10-50亿元/年
+- **进入壁垒**: 行业认知、数据积累、工作流整合
+
+### 🥈 第二名：轻量型工具链整合方案
+- **核心逻辑**: 把多个零散工具的核心功能整合到一个平台，降低切换成本
+- **目标用户**: 效率追求者、多工具用户、小团队
+- **差异化**: 一站式体验、数据打通、自动化工作流
+- **预计市场规模**: 5-30亿元/年
+- **进入壁垒**: 产品体验、生态整合、用户习惯
+
+### 🥉 第三名：社区驱动的内容与工具平台
+- **核心逻辑**: 以优质内容吸引用户，再通过工具变现
+- **目标用户**: 学习者、从业者、爱好者社区
+- **差异化**: 内容+工具闭环、社区粘性高、口碑传播
+- **预计市场规模**: 3-20亿元/年
+- **进入壁垒**: 内容积累、社区运营、品牌认知
+
+---
+
+## 四、推荐行动方案
+
+### 第一周：验证阶段
+1. **用户访谈**：找到10-20个目标用户，深度了解痛点
+2. **竞品分析**：详细分析3-5个主要竞争对手的优劣势
+3. **Landing Page测试**：做一个产品介绍页，测试用户注册意愿
+
+### 第二周：MVP阶段
+1. **核心功能开发**：只做最核心的1-2个功能
+2. **定价测试**：设计2-3个定价方案，测试用户付费意愿
+3. **种子用户获取**：通过社区、内容等方式获取第一批用户
+
+---
+
+## 五、风险与建议
+
+> 建议以独立开发者模式启动，控制成本，快速验证。如果数据好看再考虑扩张。
+
+**关键成功因素**：
+- 找到真正的痛点，而不是伪需求
+- 产品体验足够好，用户愿意主动推荐
+- 获客成本低于用户生命周期价值
+
+**建议规避的坑**：
+- 不要一开始就做太多功能
+- 不要等"完美"了再上线
+- 不要忽视用户获取成本
+
+---
+
+*本报告由 NicheFinder AI 自动生成，仅供参考，不构成投资建议。*`;
+      
+      showResult(mockReport);
+    }
+    
+    // ========== 历史记录功能 ==========
+    function getHistory() {
+      try {
+        return JSON.parse(localStorage.getItem('nichefinder_history') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+    
+    function saveToHistory(report) {
+      const history = getHistory();
+      const query = document.getElementById('analysis-query').textContent;
+      
+      const item = {
+        id: Date.now(),
+        mode: currentMode,
+        query: query,
+        report: report,
+        time: new Date().toLocaleString('zh-CN'),
+      };
+      
+      history.unshift(item);
+      
+      // 最多保存20条
+      if (history.length > 20) {
+        history.splice(20);
+      }
+      
+      localStorage.setItem('nichefinder_history', JSON.stringify(history));
+    }
+    
+    function showHistory() {
+      const modal = document.getElementById('history-modal');
+      const list = document.getElementById('history-list');
+      const history = getHistory();
+      
+      if (history.length === 0) {
+        list.innerHTML = `
+          <div class="text-center py-12 text-gray-400">
+            <i class="fas fa-inbox text-4xl mb-4"></i>
+            <p>暂无历史记录</p>
+          </div>
+        `;
+      } else {
+        list.innerHTML = history.map(item => `
+          <div class="history-item p-4 rounded-xl border border-gray-200 mb-3 cursor-pointer" onclick="loadHistoryItem(${item.id})">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0">
+                  <i class="fas ${modeIcons[item.mode] || 'fa-compass'}"></i>
+                </div>
+                <div>
+                  <div class="font-medium text-gray-800 text-sm">${item.query}</div>
+                  <div class="text-xs text-gray-400">${modeNames[item.mode] || ''} · ${item.time}</div>
+                </div>
+              </div>
+              <i class="fas fa-chevron-right text-gray-300 mt-1"></i>
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+    
+    function hideHistory() {
+      const modal = document.getElementById('history-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+    
+    function loadHistoryItem(id) {
+      const history = getHistory();
+      const item = history.find(h => h.id === id);
+      
+      if (item) {
+        currentMode = item.mode;
+        selectMode(item.mode);
+        
+        document.getElementById('home-view').classList.add('hidden');
+        document.getElementById('analysis-view').classList.remove('hidden');
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('result-state').classList.remove('hidden');
+        
+        document.getElementById('analysis-query').textContent = item.query;
+        document.getElementById('result-title').textContent = modeNames[item.mode] + '分析报告';
+        document.getElementById('result-subtitle').textContent = '分析主题：' + item.query;
+        
+        const scores = extractScores(item.report);
+        if (scores && Object.keys(scores).length > 0) {
+          renderScoreOverview(scores);
+        }
+        
+        document.getElementById('report-content').innerHTML = renderMarkdown(item.report);
+        currentReport = item.report;
+        
+        hideHistory();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+    
+    function clearHistory() {
+      if (confirm('确定要清空所有历史记录吗？')) {
+        localStorage.removeItem('nichefinder_history');
+        showHistory();
+      }
+    }
+    
+    // 点击弹窗外部关闭
+    document.getElementById('history-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        hideHistory();
+      }
+    });
+    
+    // ESC键关闭弹窗
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        hideHistory();
+        hideLoginModal();
+        hideApiKeyModal();
+        hideUpgradeModal();
+      }
+    });
+    
+    // ========== 用户系统 ==========
+    
+    // 获取API Key
+    function getApiKey() {
+      return localStorage.getItem('nichefinder_api_key') || '';
+    }
+    
+    // 保存API Key
+    function setApiKey(key) {
+      localStorage.setItem('nichefinder_api_key', key);
+    }
+    
+    // 检查是否已登录
+    function isLoggedIn() {
+      return !!getApiKey();
+    }
+    
+    // 页面加载时初始化用户状态
+    document.addEventListener('DOMContentLoaded', function() {
+      updateUserUI();
+    });
+    
+    // 更新用户UI
+    function updateUserUI() {
+      const loggedIn = isLoggedIn();
+      const userName = localStorage.getItem('nichefinder_user_name') || '';
+      
+      // 更新导航栏
+      document.getElementById('user-name-text').textContent = loggedIn ? (userName || '已登录') : '登录';
+      
+      // 更新下拉菜单
+      if (loggedIn) {
+        document.getElementById('user-logged-out').classList.add('hidden');
+        document.getElementById('user-logged-in').classList.remove('hidden');
+        
+        const plan = localStorage.getItem('nichefinder_user_plan') || 'free';
+        const planNames = { 'free': '免费版', 'pro': '专业版', 'enterprise': '企业版' };
+        document.getElementById('user-menu-name').textContent = userName || '用户';
+        document.getElementById('user-menu-plan').textContent = planNames[plan] || '免费版';
+        
+        // 获取使用情况
+        fetchUserUsage();
+      } else {
+        document.getElementById('user-logged-out').classList.remove('hidden');
+        document.getElementById('user-logged-in').classList.add('hidden');
+      }
+    }
+    
+    // 获取用户使用情况
+    async function fetchUserUsage() {
+      try {
+        const response = await fetch('/api/user/usage', {
+          headers: {
+            'Authorization': 'Bearer ' + getApiKey()
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          // 更新UI
+          const dailyQuota = data.quota?.daily || 3;
+          const dailyUsed = data.usage?.daily || 0;
+          const remaining = Math.max(0, dailyQuota - dailyUsed);
+          const percent = dailyQuota > 0 ? (dailyUsed / dailyQuota * 100) : 0;
+          
+          document.getElementById('user-menu-daily').textContent = remaining;
+          document.getElementById('user-menu-progress').style.width = percent + '%';
+          
+          // 保存用户信息
+          if (data.plan) {
+            localStorage.setItem('nichefinder_user_plan', data.plan);
+          }
+        }
+      } catch (e) {
+        console.log('获取使用情况失败:', e);
+        // 模拟数据
+        document.getElementById('user-menu-daily').textContent = '3';
+        document.getElementById('user-menu-progress').style.width = '0%';
+      }
+    }
+    
+    // 切换用户菜单
+    function toggleUserMenu() {
+      const dropdown = document.getElementById('user-dropdown');
+      dropdown.classList.toggle('hidden');
+      dropdown.classList.toggle('flex');
+    }
+    
+    // 点击页面其他地方关闭用户菜单
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('user-dropdown');
+      const menuBtn = document.getElementById('user-menu-btn');
+      
+      if (!dropdown.contains(e.target) && !menuBtn.contains(e.target)) {
+        dropdown.classList.add('hidden');
+        dropdown.classList.remove('flex');
+      }
+    });
+    
+    // 显示登录弹窗
+    function showLoginModal() {
+      document.getElementById('user-dropdown').classList.add('hidden');
+      document.getElementById('login-modal').classList.remove('hidden');
+      document.getElementById('login-modal').classList.add('flex');
+      document.getElementById('register-success').classList.add('hidden');
+      document.getElementById('register-form').classList.remove('hidden');
+    }
+    
+    // 隐藏登录弹窗
+    function hideLoginModal() {
+      document.getElementById('login-modal').classList.add('hidden');
+      document.getElementById('login-modal').classList.remove('flex');
+    }
+    
+    // 处理注册
+    async function handleRegister(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('register-name').value.trim();
+      const email = document.getElementById('register-email').value.trim();
+      
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success || data.api_key) {
+          // 保存API Key
+          const apiKey = data.api_key || data.apiKey;
+          setApiKey(apiKey);
+          
+          if (name) {
+            localStorage.setItem('nichefinder_user_name', name);
+          }
+          
+          // 显示成功
+          document.getElementById('register-form').classList.add('hidden');
+          document.getElementById('register-success').classList.remove('hidden');
+          document.getElementById('new-api-key').textContent = apiKey;
+          
+          // 更新UI
+          updateUserUI();
+          
+          // 2秒后自动关闭
+          setTimeout(() => {
+            hideLoginModal();
+          }, 2000);
+        } else {
+          alert('注册失败: ' + (data.error || '未知错误'));
+        }
+      } catch (e) {
+        console.error('注册失败:', e);
+        // 降级：生成本地模拟API Key
+        const mockKey = 'nk_local_' + Math.random().toString(36).substring(2, 15);
+        setApiKey(mockKey);
+        if (name) {
+          localStorage.setItem('nichefinder_user_name', name);
+        }
+        
+        document.getElementById('register-form').classList.add('hidden');
+        document.getElementById('register-success').classList.remove('hidden');
+        document.getElementById('new-api-key').textContent = mockKey;
+        
+        updateUserUI();
+        
+        setTimeout(() => {
+          hideLoginModal();
+        }, 2000);
+      }
+    }
+    
+    // 显示API Key弹窗
+    function showApiKeyModal() {
+      document.getElementById('user-dropdown').classList.add('hidden');
+      document.getElementById('user-dropdown').classList.remove('flex');
+      
+      document.getElementById('user-api-key').textContent = getApiKey() || '-';
+      document.getElementById('apikey-modal').classList.remove('hidden');
+      document.getElementById('apikey-modal').classList.add('flex');
+    }
+    
+    // 隐藏API Key弹窗
+    function hideApiKeyModal() {
+      document.getElementById('apikey-modal').classList.add('hidden');
+      document.getElementById('apikey-modal').classList.remove('flex');
+    }
+    
+    // 复制API Key
+    function copyApiKey() {
+      const key = getApiKey();
+      navigator.clipboard.writeText(key).then(() => {
+        showCopyToast();
+      });
+    }
+    
+    // 升级套餐
+    function upgradePlan() {
+      document.getElementById('user-dropdown').classList.add('hidden');
+      document.getElementById('user-dropdown').classList.remove('flex');
+      
+      document.getElementById('upgrade-modal').classList.remove('hidden');
+      document.getElementById('upgrade-modal').classList.add('flex');
+    }
+    
+    function hideUpgradeModal() {
+      document.getElementById('upgrade-modal').classList.add('hidden');
+      document.getElementById('upgrade-modal').classList.remove('flex');
+    }
+    
+    function handleUpgrade(plan) {
+      alert(plan === 'enterprise' ? '请联系我们的销售团队：sales@nichefinder.ai' : '支付功能开发中，敬请期待！');
+    }
+    
+    // 退出登录
+    function logout() {
+      if (confirm('确定要退出登录吗？')) {
+        localStorage.removeItem('nichefinder_api_key');
+        localStorage.removeItem('nichefinder_user_name');
+        localStorage.removeItem('nichefinder_user_plan');
+        updateUserUI();
+        document.getElementById('user-dropdown').classList.add('hidden');
+      }
+    }
+    
+    // 点击弹窗外部关闭
+    ['login-modal', 'apikey-modal', 'upgrade-modal'].forEach(id => {
+      document.getElementById(id).addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.add('hidden');
+          this.classList.remove('flex');
+        }
+      });
+    });
+    
+    // ========== 改进的分析请求（带API Key） ==========
+    // 重写startAnalysis中的fetch部分，添加Authorization header
+    const originalStartAnalysis = startAnalysis;
+    startAnalysis = async function() {
+      const query = document.getElementById('query-input').value.trim();
+      
+      if (!query) {
+        alert('请输入分析内容');
+        return;
+      }
+      
+      // 切换到分析视图
+      document.getElementById('home-view').classList.add('hidden');
+      document.getElementById('analysis-view').classList.remove('hidden');
+      document.getElementById('result-state').classList.add('hidden');
+      document.getElementById('loading-state').classList.remove('hidden');
+      
+      // 更新显示
+      document.getElementById('analysis-mode-label').textContent = modeNames[currentMode] + '分析中';
+      document.getElementById('analysis-query').textContent = query;
+      
+      // 重置步骤
+      updateStep(1);
+      
+      try {
+        // 构建请求头
+        const headers = { 'Content-Type': 'application/json' };
+        const apiKey = getApiKey();
+        if (apiKey) {
+          headers['Authorization'] = 'Bearer ' + apiKey;
+        }
+        
+        // 调用API
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            mode: currentMode,
+            query: query,
+          }),
+        });
+        
+        if (response.status === 429) {
+          // 配额用完
+          const data = await response.json().catch(() => ({}));
+          throw new Error('今日分析次数已用完，请明天再试或升级套餐');
+        }
+        
+        if (!response.ok) {
+          throw new Error('请求失败');
+        }
+        
+        const data = await response.json();
+        currentTaskId = data.task_id;
+        
+        // 开始轮询结果
+        startPolling();
+        
+      } catch (error) {
+        console.error('分析失败:', error);
+        
+        // 显示错误
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('result-state').classList.remove('hidden');
+        document.getElementById('score-overview').classList.add('hidden');
+        document.getElementById('report-content').innerHTML = `
+          <div class="text-center py-12">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">分析失败</h3>
+            <p class="text-gray-500 mb-4">${error.message || '未知错误'}</p>
+            <button onclick="goHome()" class="px-6 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition">
+              返回重试
+            </button>
+          </div>
+        `;
+      }
+    };
+  </script>
+</body>
+</html>

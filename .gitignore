@@ -1,91 +1,52 @@
-node_modules
-dist
-.DS_Store
-*.swp
-.git/*
+# Python
 __pycache__/
-*.pyc
-.venv/*
-*.o
-*.a
-/vendor
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
 *.egg-info/
-/.env
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Environment
 .env
-.cozeproj/reduction
+.env.local
+.env.*.local
 
-# JS/TS bundlers & build outputs
-.next
-.nuxt
-.turbo
-.vercel
-.parcel-cache
-.cache
-coverage
-storybook-static
-
-# Package manager artifacts
-.pnp*
-.npm
-
-# Python tooling
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.tox/
-
-# Go tooling
-bin/
-*.test
-
-# Editor / IDE
+# IDE
 .vscode/
 .idea/
-*.iml
-
-# OS / misc
-Thumbs.db
-ehthumbs.db
+*.swp
+*.swo
+.DS_Store
 
 # Logs
-output.log
 *.log
-*.log.*
 logs/
 
-# 视频文件
-*.mp4
-*.avi
-*.mov
-*.wmv
-*.flv
-*.mkv
-*.webm
-*.m4v
-*.mpeg
-*.mpg
-*.3gp
-*.f4v
-*.rmvb
-*.vob
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
 
-# 归档文件
-*.iso
-*.dmg
-*.rar
-*.zip
-*.gz
+# OS
+Thumbs.db
 
-# 文档类也默认加入
-*.pdf
-*.docx
-*.doc
-*.xlsx
-*.xls
-*.ppt
-*.pptx
-*.xlsx
-*.csv
+# Project specific
+niche-finder-source/test_report_*.md
+niche-finder-source/技术选型确认报告_v1.2.md
+niche-finder-source/端到端测试报告.md
 
-# Preview files
-.preview
+# Archives
+*.tar.gz
+
