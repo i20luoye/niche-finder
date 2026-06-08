@@ -1,121 +1,363 @@
-# 利基探测器 / Niche Finder
+# projects
 
-> AI 驱动的创业机会发现引擎。从市场数据出发，帮独立创业者找到「小而美、获客快、盈利快」的真实利基机会。
+这是一个基于 [Next.js 16](https://nextjs.org) + [shadcn/ui](https://ui.shadcn.com) 的全栈应用项目，由扣子编程 CLI 创建。
 
-## 📦 仓库结构
+## 快速开始
 
-```
-niche-finder/
-├── README.md                            ← 你正在看这个
-├── 利基探测器_编程项目启动包总览.md      ← ⭐ 必读：项目总览与执行指南
-├── 竞品分析与市场定位_给编程项目.md      ← 竞品分析 + 差异化定位
-│
-├── 产品文档/                            ← 产品定义层
-│   ├── PRD_v1.1_利基探测器.md
-│   └── 编程项目启动包_利基探测器.md
-│
-├── 调研分析师交付物/                     ← 数据模型层
-│   ├── 六维评估模型_v2.0.md              ← ⭐ 核心业务逻辑
-│   ├── 六维评估模型与评分逻辑_编程项目版.md
-│   ├── 样本报告集_v1.0.md
-│   ├── 三份测试报告质量评审.md
-│   ├── test_report_1_blue_ocean.md      ← 蓝海模式样本
-│   ├── test_report_2_red_ocean.md       ← 红海细分模式样本
-│   └── test_report_3_cross_domain.md    ← 跨界机会模式样本
-│
-├── 项目启动包/                          ← 技术架构层
-│   ├── 项目启动包_技术架构说明.md        ← ⭐ 技术架构核心文档
-│   ├── 技术选型确认报告_v1.2.md
-│   ├── 端到端测试报告.md
-│   └── 样本报告/                        ← 来自研发环境的样本
-│       ├── test_report_1_blue_ocean.md
-│       ├── test_report_2_red_ocean.md
-│       └── test_report_3_cross_domain.md
-│
-└── niche-finder-source/                 ← ⭐ 源代码（已可运行）
-    ├── README.md
-    ├── Dockerfile
-    ├── requirements.txt
-    ├── server.py                        ← FastAPI 后端入口
-    ├── e2e_test.py                      ← 端到端测试
-    ├── niche_finder/                    ← 核心业务模块
-    └── web/                             ← 前端单页应用
-```
+### 启动开发服务器
 
-## 🎯 这是什么项目
-
-**利基探测器**是一款 AI 创业方向发现工具。用户输入自身预算、技能、时间等资源禀赋，系统输出经过市场调研、竞品分析、变现评估、风险论证的细分创业机会报告。
-
-**支持四种发现模式：**
-- 🟢 **蓝海发现** — 全新细分市场
-- 🟡 **红海细分** — 在红海里找细分的蓝海
-- 🔵 **跨界迁移** — 把 A 领域成熟方案搬到 B 领域
-- 🟣 **深度分析** — 对某个方向做深度调研
-
-**核心差异化：魔鬼辩护机制** — 在用户被说服之前，先让另一个 Agent 把方案批倒。报告不是"营销稿"，而是"经得起质疑的决策依据"。
-
-## 🚀 快速开始
-
-### 读懂项目（按顺序）
-1. **战略层先读**：`利基探测器_编程项目启动包总览.md`
-2. **产品层读**：`产品文档/PRD_v1.1_利基探测器.md`
-3. **技术层读**：`项目启动包/项目启动包_技术架构说明.md`
-4. **业务逻辑核心**：`调研分析师交付物/六维评估模型_v2.0.md`
-5. **看最终产物长什么样**：任选一份 `test_report_*.md` 阅读
-
-### 跑起来
 ```bash
-cd niche-finder-source
-pip install -r requirements.txt
-cp .env.example .env  # 填入 TAVILY_API_KEY / OPENAI_API_KEY
-python server.py      # 启动后端，默认 http://localhost:8000
-# 前端：浏览器打开 web/index.html
+coze dev
 ```
 
-### Docker 部署
+启动后，在浏览器中打开 [http://localhost:5000](http://localhost:5000) 查看应用。
+
+开发服务器支持热更新，修改代码后页面会自动刷新。
+
+### 构建生产版本
+
 ```bash
-cd niche-finder-source
-docker build -t niche-finder .
-docker run -p 8000:8000 --env-file .env niche-finder
+coze build
 ```
 
-## 🛠 技术栈
+### 启动生产服务器
 
-| 层 | 选型 | 理由 |
-|---|---|---|
-| **搜索层** | Tavily | AI 优化的搜索 API，对结构化数据抽取能力强 |
-| **研究层** | GPT Researcher | 多 Agent 深度研究框架，单条命令跑出报告 |
-| **编排层** | CrewAI | 多 Agent 协作编排 |
-| **后端** | Python FastAPI | 异步、轻量、AI 生态完善 |
-| **前端** | HTML/CSS/JS + Chart.js | 单页应用，无构建依赖，雷达图可视化 |
-| **LLM 备份** | GPT-4 / Claude / DeepSeek | 多模型备份，避免单点依赖 |
+```bash
+coze start
+```
 
-## 📊 商业模式
+## 项目结构
 
-| 档位 | 价格 | 配额 |
-|------|------|------|
-| 免费试用 | ¥0 | 1 次完整报告 |
-| 按次付费 | ¥9.9/次 | 单次购买 |
-| 月度会员 | ¥99/月 | 30 次完整报告 + 深度模式 |
-| 企业定制 | 面议 | 私有部署 / API 接入 |
+```
+src/
+├── app/                      # Next.js App Router 目录
+│   ├── layout.tsx           # 根布局组件
+│   ├── page.tsx             # 首页
+│   ├── globals.css          # 全局样式（包含 shadcn 主题变量）
+│   └── [route]/             # 其他路由页面
+├── components/              # React 组件目录
+│   └── ui/                  # shadcn/ui 基础组件（优先使用）
+│       ├── button.tsx
+│       ├── card.tsx
+│       └── ...
+├── lib/                     # 工具函数库
+│   └── utils.ts            # cn() 等工具函数
+└── hooks/                   # 自定义 React Hooks（可选）
 
-## 📝 项目背景
+server/
+├── index.ts                 # 自定义服务器入口
+├── tsconfig.json           # Server TypeScript 配置
+└── dist/                    # 编译输出目录（自动生成）
+```
 
-本项目由 6 个 Agent 协作完成（产品 / 调研 / 全栈 / 竞品 / 增长 / 主编），前期所有战略层交付物（含 PRD、技术架构、评估模型、样本报告、竞品分析）都已在仓库内。代码包已实现 MVP，包含：
-- 8 个核心 API
-- 4 种发现模式
-- 6 个协作 Agent
-- 用户系统（API Key + 三级套餐 + 配额管理）
-- 端到端测试通过
-- 约 5400 行代码
+## 核心开发规范
 
-## 📌 关键决策记录
+### 1. 组件开发
 
-- 站在开源巨人肩膀上：集成 Tavily + GPT Researcher + CrewAI，不从零造轮子
-- 双引擎策略：轻量引擎（75-100s）为主，深度引擎（5-8min）为辅
-- 战略与执行分离：战略层（产品/调研/增长）+ 执行层（编程项目）解耦
-- 质量优先：报告必须有真实数据 + 引用溯源 + 多维交叉验证 + 正反辩论
+**优先使用 shadcn/ui 基础组件**
 
-## 📄 License
+本项目已预装完整的 shadcn/ui 组件库，位于 `src/components/ui/` 目录。开发时应优先使用这些组件作为基础：
 
-MIT
+```tsx
+// ✅ 推荐：使用 shadcn 基础组件
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+
+export default function MyComponent() {
+  return (
+    <Card>
+      <CardHeader>标题</CardHeader>
+      <CardContent>
+        <Input placeholder="输入内容" />
+        <Button>提交</Button>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+**可用的 shadcn 组件清单**
+
+- 表单：`button`, `input`, `textarea`, `select`, `checkbox`, `radio-group`, `switch`, `slider`
+- 布局：`card`, `separator`, `tabs`, `accordion`, `collapsible`, `scroll-area`
+- 反馈：`alert`, `alert-dialog`, `dialog`, `toast`, `sonner`, `progress`
+- 导航：`dropdown-menu`, `menubar`, `navigation-menu`, `context-menu`
+- 数据展示：`table`, `avatar`, `badge`, `hover-card`, `tooltip`, `popover`
+- 其他：`calendar`, `command`, `carousel`, `resizable`, `sidebar`
+
+详见 `src/components/ui/` 目录下的具体组件实现。
+
+### 2. 路由开发
+
+Next.js 使用文件系统路由，在 `src/app/` 目录下创建文件夹即可添加路由：
+
+```bash
+# 创建新路由 /about
+src/app/about/page.tsx
+
+# 创建动态路由 /posts/[id]
+src/app/posts/[id]/page.tsx
+
+# 创建路由组（不影响 URL）
+src/app/(marketing)/about/page.tsx
+
+# 创建 API 路由
+src/app/api/users/route.ts
+```
+
+**页面组件示例**
+
+```tsx
+// src/app/about/page.tsx
+import { Button } from '@/components/ui/button';
+
+export const metadata = {
+  title: '关于我们',
+  description: '关于页面描述',
+};
+
+export default function AboutPage() {
+  return (
+    <div>
+      <h1>关于我们</h1>
+      <Button>了解更多</Button>
+    </div>
+  );
+}
+```
+
+**动态路由示例**
+
+```tsx
+// src/app/posts/[id]/page.tsx
+export default async function PostPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  return <div>文章 ID: {id}</div>;
+}
+```
+
+**API 路由示例**
+
+```tsx
+// src/app/api/users/route.ts
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  return NextResponse.json({ users: [] });
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  return NextResponse.json({ success: true });
+}
+```
+
+### 3. 依赖管理
+
+**必须使用 pnpm 管理依赖**
+
+```bash
+# ✅ 安装依赖
+pnpm install
+
+# ✅ 添加新依赖
+pnpm add package-name
+
+# ✅ 添加开发依赖
+pnpm add -D package-name
+
+# ❌ 禁止使用 npm 或 yarn
+# npm install  # 错误！
+# yarn add     # 错误！
+```
+
+项目已配置 `preinstall` 脚本，使用其他包管理器会报错。
+
+### 4. 样式开发
+
+**使用 Tailwind CSS v4**
+
+本项目使用 Tailwind CSS v4 进行样式开发，并已配置 shadcn 主题变量。
+
+```tsx
+// 使用 Tailwind 类名
+<div className="flex items-center gap-4 p-4 rounded-lg bg-background">
+  <Button className="bg-primary text-primary-foreground">
+    主要按钮
+  </Button>
+</div>
+
+// 使用 cn() 工具函数合并类名
+import { cn } from '@/lib/utils';
+
+<div className={cn(
+  "base-class",
+  condition && "conditional-class",
+  className
+)}>
+  内容
+</div>
+```
+
+**主题变量**
+
+主题变量定义在 `src/app/globals.css` 中，支持亮色/暗色模式：
+
+- `--background`, `--foreground`
+- `--primary`, `--primary-foreground`
+- `--secondary`, `--secondary-foreground`
+- `--muted`, `--muted-foreground`
+- `--accent`, `--accent-foreground`
+- `--destructive`, `--destructive-foreground`
+- `--border`, `--input`, `--ring`
+
+### 5. 表单开发
+
+推荐使用 `react-hook-form` + `zod` 进行表单开发：
+
+```tsx
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+const formSchema = z.object({
+  username: z.string().min(2, '用户名至少 2 个字符'),
+  email: z.string().email('请输入有效的邮箱'),
+});
+
+export default function MyForm() {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: { username: '', email: '' },
+  });
+
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    console.log(data);
+  };
+
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <Input {...form.register('username')} />
+      <Input {...form.register('email')} />
+      <Button type="submit">提交</Button>
+    </form>
+  );
+}
+```
+
+### 6. 数据获取
+
+**服务端组件（推荐）**
+
+```tsx
+// src/app/posts/page.tsx
+async function getPosts() {
+  const res = await fetch('https://api.example.com/posts', {
+    cache: 'no-store', // 或 'force-cache'
+  });
+  return res.json();
+}
+
+export default async function PostsPage() {
+  const posts = await getPosts();
+
+  return (
+    <div>
+      {posts.map(post => (
+        <div key={post.id}>{post.title}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+**客户端组件**
+
+```tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+
+export default function ClientComponent() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    fetch('/api/data')
+      .then(res => res.json())
+      .then(setData);
+  }, []);
+
+  return <div>{JSON.stringify(data)}</div>;
+}
+```
+
+## 常见开发场景
+
+### 添加新页面
+
+1. 在 `src/app/` 下创建文件夹和 `page.tsx`
+2. 使用 shadcn 组件构建 UI
+3. 根据需要添加 `layout.tsx` 和 `loading.tsx`
+
+### 创建业务组件
+
+1. 在 `src/components/` 下创建组件文件（非 UI 组件）
+2. 优先组合使用 `src/components/ui/` 中的基础组件
+3. 使用 TypeScript 定义 Props 类型
+
+### 添加全局状态
+
+推荐使用 React Context 或 Zustand：
+
+```tsx
+// src/lib/store.ts
+import { create } from 'zustand';
+
+interface Store {
+  count: number;
+  increment: () => void;
+}
+
+export const useStore = create<Store>((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 })),
+}));
+```
+
+### 集成数据库
+
+推荐使用 Prisma 或 Drizzle ORM，在 `src/lib/db.ts` 中配置。
+
+## 技术栈
+
+- **框架**: Next.js 16.1.1 (App Router)
+- **UI 组件**: shadcn/ui (基于 Radix UI)
+- **样式**: Tailwind CSS v4
+- **表单**: React Hook Form + Zod
+- **图标**: Lucide React
+- **字体**: Geist Sans & Geist Mono
+- **包管理器**: pnpm 9+
+- **TypeScript**: 5.x
+
+## 参考文档
+
+- [Next.js 官方文档](https://nextjs.org/docs)
+- [shadcn/ui 组件文档](https://ui.shadcn.com)
+- [Tailwind CSS 文档](https://tailwindcss.com/docs)
+- [React Hook Form](https://react-hook-form.com)
+
+## 重要提示
+
+1. **必须使用 pnpm** 作为包管理器
+2. **优先使用 shadcn/ui 组件** 而不是从零开发基础组件
+3. **遵循 Next.js App Router 规范**，正确区分服务端/客户端组件
+4. **使用 TypeScript** 进行类型安全开发
+5. **使用 `@/` 路径别名** 导入模块（已配置）
