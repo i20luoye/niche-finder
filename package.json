@@ -1,7 +1,9 @@
 {
-  "name": "projects",
-  "version": "0.1.0",
+  "name": "niche-finder",
+  "version": "1.0.0",
+  "description": "AI-powered niche opportunity discovery engine",
   "private": true,
+  "__private_comment": "We set private: true to avoid accidental publishing to npm. This repository is PUBLIC and open source.",
   "scripts": {
     "build": "bash ./scripts/build.sh",
     "dev": "bash ./scripts/dev.sh",
@@ -12,6 +14,8 @@
     "ts-check": "tsc -p tsconfig.json",
     "validate": "pnpm run --parallel '/^(ts-check|lint:build)$/'"
   },
+  "author": "i20luoye",
+  "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",
     "@aws-sdk/lib-storage": "^3.958.0",

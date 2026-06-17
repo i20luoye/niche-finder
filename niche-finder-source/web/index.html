@@ -960,6 +960,10 @@
   </footer>
 
   <script>
+    // ========== Demo 模式配置 ==========
+    // 部署到 Vercel 静态托管时，无后端支持，自动使用模拟数据
+    const DEMO_MODE = true;
+
     // 当前状态
     let currentMode = 'blue-ocean';
     let currentTaskId = null;
@@ -1028,6 +1032,18 @@
       document.getElementById('analysis-query').textContent = query;
       
       updateStep(1);
+      
+      // Demo 模式：直接使用模拟数据，无需等待 API
+      if (DEMO_MODE) {
+        // 模拟分析进度动画
+        setTimeout(() => updateStep(2), 600);
+        setTimeout(() => updateStep(3), 1400);
+        setTimeout(() => updateStep(4), 2200);
+        setTimeout(() => {
+          showMockResult(query);
+        }, 3000);
+        return;
+      }
       
       try {
         const response = await fetch('/api/analyze', {

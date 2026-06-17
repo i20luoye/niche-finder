@@ -1,4 +1,8 @@
-# projects
+# 利基探测器 / Niche Finder
+
+**项目定位：一个 AI 驱动的创业机会发现引擎，专为独立开发者和初创团队设计，致力于发掘具有商业潜力的细分市场（Niche Market）。**
+
+> AI 驱动的创业机会发现引擎。从市场数据出发，帮独立创业者找到「小而美、获客快、盈利快」的真实利基机会。
 
 这是一个基于 [Next.js 16](https://nextjs.org) + [shadcn/ui](https://ui.shadcn.com) 的全栈应用项目，由扣子编程 CLI 创建。
 
