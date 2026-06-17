@@ -1,19 +1,19 @@
-# Niche Finder Roadmap
+# Roadmap
 
-## Phase 1: MVP & Core Engine
-- [x] Basic UI prototype
-- [x] Initial opportunity report structure
-- [ ] Search provider integration
-- [ ] Multi-agent workflow prototype
-- [ ] Report quality evaluation examples
+## Phase 1: MVP
+- [x] Basic project structure
+- [x] Initial product concept
+- [ ] Opportunity report page
+- [ ] Six-dimension scoring model
+- [ ] Example report generation
 
-## Phase 2: Feature Expansion
-- [ ] User accounts and historical reports dashboard
-- [ ] Export to PDF/Markdown feature
-- [ ] Integration with more LLM providers
-- [ ] Improved target audience persona generation
+## Phase 2: OSS Readiness
+- [ ] Add tests
+- [ ] Add issue templates
+- [ ] Add sample reports
+- [ ] Improve documentation
 
-## Phase 3: Community & Scale
-- [ ] Multi-language support
-- [ ] Community sharing of niche reports
-- [ ] API access for enterprise users
+## Phase 3: Agent Workflow
+- [ ] Multi-agent research workflow
+- [ ] Devil’s advocate module
+- [ ] Report quality evaluation

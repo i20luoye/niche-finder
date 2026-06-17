@@ -22,4 +22,4 @@ Have an idea for a new feature? We'd love to hear it!
 4. Issue that pull request!
 
 ## Code Style
-Please follow the existing code style. For Python code, we loosely follow PEP 8.
+For TypeScript and React code, please follow the existing project style and run lint/type checks before submitting a PR.
